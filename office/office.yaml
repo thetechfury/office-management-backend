@@ -1,0 +1,376 @@
+swagger: '2.0'
+info:
+  title: My API
+  description: API description
+  termsOfService: https://www.google.com/policies/terms/
+  contact:
+    email: contact@myapi.local
+  license:
+    name: BSD License
+  version: v1
+basePath: /
+consumes:
+- application/json
+produces:
+- application/json
+securityDefinitions:
+  Basic:
+    type: basic
+security:
+- Basic: []
+paths:
+  /member/membership/:
+    get:
+      operationId: member_membership_list
+      description: ''
+      parameters:
+      - name: page
+        in: query
+        description: A page number within the paginated result set.
+        required: false
+        type: integer
+      responses:
+        '200':
+          description: ''
+          schema:
+            required:
+            - count
+            - results
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: string
+                format: uri
+                x-nullable: true
+              previous:
+                type: string
+                format: uri
+                x-nullable: true
+              results:
+                type: array
+                items:
+                  $ref: '#/definitions/Membership'
+      tags:
+      - member
+    post:
+      operationId: member_membership_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Membership'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/Membership'
+      tags:
+      - member
+    parameters: []
+  /member/membership/{id}/:
+    get:
+      operationId: member_membership_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Membership'
+      tags:
+      - member
+    put:
+      operationId: member_membership_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Membership'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Membership'
+      tags:
+      - member
+    patch:
+      operationId: member_membership_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Membership'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Membership'
+      tags:
+      - member
+    delete:
+      operationId: member_membership_delete
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - member
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this membership.
+      required: true
+      type: integer
+  /team/team/:
+    get:
+      operationId: team_team_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Team'
+      tags:
+      - team
+    post:
+      operationId: team_team_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Team'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/Team'
+      tags:
+      - team
+    parameters: []
+  /team/team/{id}/:
+    get:
+      operationId: team_team_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Team'
+      tags:
+      - team
+    put:
+      operationId: team_team_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Team'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Team'
+      tags:
+      - team
+    patch:
+      operationId: team_team_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Team'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Team'
+      tags:
+      - team
+    delete:
+      operationId: team_team_delete
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - team
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this team.
+      required: true
+      type: integer
+  /user/update-password/:
+    put:
+      operationId: user_update-password_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/UpdatePassword'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/UpdatePassword'
+      tags:
+      - user
+    patch:
+      operationId: user_update-password_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/UpdatePassword'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/UpdatePassword'
+      tags:
+      - user
+    parameters: []
+  /user/users/:
+    get:
+      operationId: user_users_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+      - user
+    post:
+      operationId: user_users_create
+      description: ''
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags:
+      - user
+    parameters: []
+  /user/users/{id}/:
+    get:
+      operationId: user_users_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+      - user
+    put:
+      operationId: user_users_update
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+      - user
+    patch:
+      operationId: user_users_partial_update
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+      - user
+    delete:
+      operationId: user_users_delete
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - user
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this user.
+      required: true
+      type: integer
+definitions:
+  Membership:
+    required:
+    - user
+    - team
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      user:
+        title: User
+        type: integer
+      team:
+        title: Team
+        type: integer
+  Team:
+    required:
+    - name
+    - leader
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      name:
+        title: Name
+        type: string
+        maxLength: 100
+        minLength: 1
+      leader:
+        title: Leader
+        type: integer
+  UpdatePassword:
+    required:
+    - previous_password
+    - new_password
+    - confirm_password
+    type: object
+    properties:
+      previous_password:
+        title: Previous password
+        type: string
+        maxLength: 50
+        minLength: 1
+      new_password:
+        title: New password
+        type: string
+        maxLength: 50
+        minLength: 1
+      confirm_password:
+        title: Confirm password
+        type: string
+        maxLength: 50
+        minLength: 1
