@@ -74,38 +74,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 
-    # def get_extra_kwargs(self):
-    #    user = self.context.get('request').user
-    #    extra_kwargs = super().get_extra_kwargs()
-    #    if user.role != "admin":
-    #        extra_kwargs['role'].update(read_only = True)
-    #        extra_kwargs['email'] = {"read_only":True}
-    #    return extra_kwargs
-
-
-
-    # def get_field_names(self, declared_fields, info):
-    #     fields = super().get_field_names(declared_fields, info)
-    #     request_method = self.context['request'].method
-    #
-    #     if request_method == 'POST' and self.context['request'].user.role == 'admin':
-    #         fields= ['email','first_name','last_name','role','password']
-    #         return fields
-    #     elif request_method in ["PUT", "PATCH", 'GET'] and self.context['request'].user.role == 'admin':
-    #         fields = ['first_name', 'last_name', 'role']
-    #         return fields
-    #     elif request_method in ["PUT", "PATCH"] :
-    #         fields = ['first_name', 'last_name']
-    #         return fields
-    #
-    #     return fields
-
-
-
-    # def create(self, validated_data):
-    #     user = User.objects.create_user(**validated_data)
-    #     return user
-
 
 
 class UpdatePasswordSerializer(serializers.Serializer):

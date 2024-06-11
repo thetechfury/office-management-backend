@@ -21,7 +21,7 @@ class UserViewset(ModelViewSet):
     pagination_class = MyPagination
 
     def get_serializer_class(self):
-        # Custom logic: If the user is a superuser, use MyModelSerializer, otherwise use MyModelLimitedSerializer
+
         if self.request.user.role == "admin" and self.action == 'create':
             return AdminUserPostSerializer
         elif self.request.user.role == "admin" and self.action in ['update','partial_update']:
@@ -38,12 +38,6 @@ class UserViewset(ModelViewSet):
         else:
 
             return User.objects.filter(id=user.id)
-
-
-
-
-
-
 
 
 
