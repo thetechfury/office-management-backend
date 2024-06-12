@@ -50,3 +50,35 @@ class Membership(models.Model):
         return f'{str(self.user)}) in {str(self.team)}'
 
 
+
+
+class Profile(models.Model):
+    date_of_birth = models.DateField()
+    bio = models.TextField(max_length=500)
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    def __str__(self):
+        return self.user.email
+
+
+class Education(models.Model):
+    degree = models.CharField(max_length=50)
+    total_marks = models.DecimalField(decimal_places=2,max_digits=6)
+    obtain_marks = models.DecimalField(decimal_places=2,max_digits=6)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    institute = models.CharField(max_length=100)
+    profile = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name='educations')
+
+    def __str__(self):
+        return str(f'{self.degree} - {self.profile.user.email}')
+
+
+
+
+class ProfileImage(models.Model):
+    title = models.CharField(max_length=30)
+    image = models.ImageField(upload_to='images/', blank=True, null=True)
+    profile = models.OneToOneField(Profile,on_delete=models.CASCADE)
+    def __str__(self):
+        return self.title
+

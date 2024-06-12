@@ -21,8 +21,6 @@ from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
 from users import views
 from .swagger import swagger_info
 # swagger
@@ -36,17 +34,27 @@ schema_view = get_schema_view(
 user_router = DefaultRouter()
 team_router = DefaultRouter()
 membership_router = DefaultRouter()
-user_router.register(r'users', views.UserViewset, basename='user')
-team_router.register(r'team',views.TeamViewset,basename='team')
-membership_router.register(r'membership',views. MembershipViewset,basename='member')
+profile_router = DefaultRouter()
+profile_image_router = DefaultRouter()
+user_router.register('', views.UserViewset, basename='user')
+team_router.register('',views.TeamViewset,basename='team')
+membership_router.register('',views. MembershipViewset,basename='member')
+profile_router.register('',views.ProfileViewset,basename='profile')
+profile_image_router.register('',views.ProfileImageViewset,basename='profile')
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("user/",include(user_router.urls)),
     path("team/",include(team_router.urls)),
     path("member/",include(membership_router.urls)),
+    path("profile/",include(profile_router.urls)),
+    path("profile-image/",include(profile_image_router.urls)),
     path("",include('users.urls')),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('swagger.yaml', schema_view.without_ui(cache_timeout=0), name='schema-yaml'),
     path('swagger.json', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-]
+]+static(settings.MEDIA_URL,
+         document_root=settings.MEDIA_ROOT)
+

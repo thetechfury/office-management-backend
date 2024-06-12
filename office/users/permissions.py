@@ -54,3 +54,10 @@ class MembershipPermission(BasePermission):
 
 
 
+class ProfilePermissions(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user == obj.user or request.user.role == "admin":
+            return True
+
+        else:
+            return False

@@ -5,10 +5,11 @@ from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import BasicAuthentication,SessionAuthentication
 from rest_framework.viewsets import ModelViewSet
-from .models import User, Team, Membership
+from rest_framework.validators import ValidationError
+from .models import User, Team, Membership, Profile, Education, ProfileImage
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
-    AdminUserPostSerializer, UserUpdateSerializer,MembershipSerializer
-from .permissions import MyPermission, TeamPermission, MembershipPermission
+    AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer
+from .permissions import MyPermission, TeamPermission, MembershipPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from .paginations import MyPagination
@@ -19,6 +20,7 @@ class UserViewset(ModelViewSet):
     authentication_classes = [SessionAuthentication,BasicAuthentication]
     permission_classes = [IsAuthenticated,MyPermission]
     pagination_class = MyPagination
+    http_method_names = ["get","post",'patch',"delete"]
 
     def get_serializer_class(self):
 
@@ -44,6 +46,7 @@ class UserViewset(ModelViewSet):
 class UpdatePasswordAPI(UpdateAPIView):
     serializer_class = UpdatePasswordSerializer
     permission_classes = [IsAuthenticated]
+    http_method_names = ["put"]
 
     def update(self, request, *args, **kwargs):
         user = request.user
@@ -70,6 +73,7 @@ class TeamViewset(ModelViewSet):
     authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated,TeamPermission]
     pagination_class = MyPagination
+    http_method_names = ["get",'post','patch']
 
     def get_queryset(self):
         user = self.request.user
@@ -87,6 +91,7 @@ class MembershipViewset(ModelViewSet):
     authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated,MembershipPermission]
     pagination_class = MyPagination
+    http_method_names = ["get",'post','delete']
 
 
     def get_queryset(self):
@@ -96,6 +101,39 @@ class MembershipViewset(ModelViewSet):
             return members
         else:
             return ValidationError("This user is not leader of any team")
+
+
+
+class ProfileViewset(ModelViewSet):
+    serializer_class = ProfileSerializer
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated,ProfilePermissions]
+    http_method_names = ["get",'post','delete','patch']
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "admin":
+            profiles = Profile.objects.all()
+            return profiles
+        else:
+            profile = Profile.objects.filter(user = user)
+            return profile
+
+
+class ProfileImageViewset(ModelViewSet):
+    queryset = ProfileImage.objects.all()
+    serializer_class = ProfileImageSerializer
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ("get","post","put")
+    def get_queryset(self):
+        user = self.request.user
+        try:
+            profile = Profile.objects.get(user=self.request.user)
+            profile_image = ProfileImage.objects.filter(profile=profile)
+            return profile_image
+        except:
+            return []
 
 
 
