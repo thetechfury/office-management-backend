@@ -36,11 +36,13 @@ team_router = DefaultRouter()
 membership_router = DefaultRouter()
 profile_router = DefaultRouter()
 profile_image_router = DefaultRouter()
+profile_skill_router = DefaultRouter()
 user_router.register('', views.UserViewset, basename='user')
 team_router.register('',views.TeamViewset,basename='team')
 membership_router.register('',views. MembershipViewset,basename='member')
 profile_router.register('',views.ProfileViewset,basename='profile')
 profile_image_router.register('',views.ProfileImageViewset,basename='profile')
+profile_skill_router.register('',views.ProfileSkillViewset,basename='skill')
 
 
 urlpatterns = [
@@ -50,6 +52,7 @@ urlpatterns = [
     path("member/",include(membership_router.urls)),
     path("profile/",include(profile_router.urls)),
     path("profile-image/",include(profile_image_router.urls)),
+    path("profile-skill/",include(profile_skill_router.urls)),
     path("",include('users.urls')),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

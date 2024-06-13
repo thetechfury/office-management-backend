@@ -82,3 +82,35 @@ class ProfileImage(models.Model):
     def __str__(self):
         return self.title
 
+class Skills(models.Model):
+    beigner = 'beigner'
+    intermediate = 'intermediate'
+    expert = 'expert'
+
+
+    """User model."""
+    LEVEL_CHOICES = (
+        (beigner, "Beigner"),
+        (intermediate, "Intermediate"),
+        (expert, "expert"),
+
+    )
+
+    name = models.CharField(max_length=50)
+    level = models.CharField(max_length=30,choices=LEVEL_CHOICES,default=beigner)
+    description = models.CharField(max_length=300,null=True,blank=True)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='skills')
+
+    def __str__(self):
+        return str(f'{self.name} - {self.level}')
+
+
+class Address(models.Model):
+    city = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
+    country = models.CharField(max_length=50)
+    street = models.CharField(max_length=50)
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='address')
+
+    def __str__(self):
+        return str(f'{self.name} - {self.level}')

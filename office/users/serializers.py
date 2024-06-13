@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from .models import User, Team, Membership,Profile,Education,ProfileImage
+from .models import User, Team, Membership, Profile, Education, ProfileImage, Skills
 from rest_framework.validators import ValidationError
 
 
@@ -182,5 +182,37 @@ class ProfileImageSerializer(serializers.ModelSerializer):
             instance.title = validated_data.get('title')
             instance.save()
             return instance
+    
 
 
+class ProfileSkillSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Skills
+        fields = '__all__'
+        read_only_fields = ('id','profile',)
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Skills.objects.all(),
+                fields=['name']
+            )
+        ]
+
+
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        profile = Profile.objects.get(user=user)
+        profile_skill = Skills.objects.create(**validated_data,profile = profile)
+        return profile_skill
+
+    def update(self, instance, validated_data):
+            instance.name = validated_data.get('name')
+            instance.level = validated_data.get('level')
+            instance.description = validated_data.get('description')
+            instance.save()
+            return instance
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(max_length=100)

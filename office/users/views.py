@@ -2,13 +2,15 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import UpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import BasicAuthentication,SessionAuthentication
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.validators import ValidationError
-from .models import User, Team, Membership, Profile, Education, ProfileImage
+from django.contrib.auth import authenticate,logout,login
+from .models import User, Team, Membership, Profile, ProfileImage, Skills
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
-    AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer
+    AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
+    ProfileSkillSerializer, LoginSerializer
 from .permissions import MyPermission, TeamPermission, MembershipPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
 from rest_framework.pagination import PageNumberPagination
@@ -23,7 +25,6 @@ class UserViewset(ModelViewSet):
     http_method_names = ["get","post",'patch',"delete"]
 
     def get_serializer_class(self):
-
         if self.request.user.role == "admin" and self.action == 'create':
             return AdminUserPostSerializer
         elif self.request.user.role == "admin" and self.action in ['update','partial_update']:
@@ -38,7 +39,6 @@ class UserViewset(ModelViewSet):
         if self.request.user.role == 'admin':
             return User.objects.all()
         else:
-
             return User.objects.filter(id=user.id)
 
 
@@ -80,7 +80,6 @@ class TeamViewset(ModelViewSet):
         if self.request.user.role == 'admin':
             return Team.objects.all()
         else:
-
             return Team.objects.filter(leader=user)
 
 
@@ -137,11 +136,51 @@ class ProfileImageViewset(ModelViewSet):
 
 
 
+class ProfileSkillViewset(ModelViewSet):
+    queryset = Skills.objects.all()
+    serializer_class = ProfileSkillSerializer
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ("get","post","patch")
+    def get_queryset(self):
+        user = self.request.user
+        try:
+            profile = Profile.objects.get(user=self.request.user)
+            profile_skills = Skills.objects.filter(profile=profile)
+            return profile_skills
+        except:
+            return []
 
 
+class LoginAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    http_method_names = ["post"]
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        serializer = LoginSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = authenticate(username=email, password=password)
+            if not user:
+                raise ValidationError("Incorrect username or password.")
+            else:
+                login(request, user)
+                return Response({"response": "You are successfully logged in."})
+        else:
+            return Response(serializer.errors, status=400)
 
 
-
+class LogoutAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        try:
+            logout(request)
+            return Response({"message":"You Logged out"})
+        except:
+            raise ValidationError("Error occur while logging out")
 
 
 
