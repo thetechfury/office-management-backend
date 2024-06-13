@@ -104,6 +104,20 @@ class Skills(models.Model):
     def __str__(self):
         return str(f'{self.name} - {self.level}')
 
+class WorkingExperience(models.Model):
+    title = models.CharField(max_length=50)
+    company_name = models.CharField(max_length=50)
+    description = models.CharField(max_length=500)
+    joining_date = models.DateField()
+    end_date = models.DateField()
+    remarks = models.CharField(max_length=500)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='experience')
+
+    def __str__(self):
+        return f'{self.title} - {self.company_name} '
+
+
+
 
 class Address(models.Model):
     city = models.CharField(max_length=50)
@@ -114,3 +128,5 @@ class Address(models.Model):
 
     def __str__(self):
         return str(f'{self.name} - {self.level}')
+
+
