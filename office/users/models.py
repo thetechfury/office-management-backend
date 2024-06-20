@@ -12,12 +12,15 @@ class User(AbstractUser):
     ADMIN = 'admin'
     MANAGER = 'manager'
     Accountant = 'accountant'
+    Inventory_Manager = 'inventory_manager'
+
 
     """User model."""
     ROLE_CHOICES = (
         (ENDUSER,"End User"),
         (Accountant,"Accountant"),
         (MANAGER,"Manager"),
+        (Inventory_Manager,'Inventory Manager'),
         (ADMIN,"Admin")
     )
     role = models.CharField(max_length=30,choices=ROLE_CHOICES,default=ROLE_CHOICES[0])
@@ -29,6 +32,9 @@ class User(AbstractUser):
 
     objects = CustomUserManager()
 
+    @property
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'
 
 
 class Team(models.Model):
@@ -39,9 +45,8 @@ class Team(models.Model):
         return str(self.name)
 
 class Membership(models.Model):
-
     user = models.ForeignKey(User,on_delete=models.CASCADE)
-    team = models.ForeignKey(Team,on_delete=models.CASCADE)
+    team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='members')
 
     class Meta:
         unique_together = ('user', 'team')
@@ -55,6 +60,7 @@ class Membership(models.Model):
 class Profile(models.Model):
     date_of_birth = models.DateField()
     bio = models.TextField(max_length=500)
+    phone = models.CharField(max_length=12)
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     def __str__(self):
         return self.user.email
@@ -130,3 +136,33 @@ class Address(models.Model):
         return str(f'{self.name} - {self.level}')
 
 
+
+# class Blog(models.Model):
+#     name = models.CharField(max_length=100)
+#     tagline = models.TextField()
+#
+#     def __str__(self):
+#         return self.name
+#
+#
+# class Author(models.Model):
+#     name = models.CharField(max_length=200)
+#     email = models.EmailField()
+#
+#     def __str__(self):
+#         return self.name
+#
+#
+# class Entry(models.Model):
+#     blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+#     headline = models.CharField(max_length=255)
+#     body_text = models.TextField()
+#     pub_date = models.DateField()
+#     mod_date = models.DateField(default=date.today)
+#     authors = models.ManyToManyField(Author)
+#     number_of_comments = models.IntegerField(default=0)
+#     number_of_pingbacks = models.IntegerField(default=0)
+#     rating = models.IntegerField(default=5)
+#
+#     def __str__(self):
+#         return self.headline

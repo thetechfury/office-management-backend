@@ -22,6 +22,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from users import views
+from inventory import views as inventory_views
 from .swagger import swagger_info
 # swagger
 schema_view = get_schema_view(
@@ -37,12 +38,18 @@ membership_router = DefaultRouter()
 profile_router = DefaultRouter()
 profile_image_router = DefaultRouter()
 profile_skill_router = DefaultRouter()
+working_experience_router = DefaultRouter()
+inventory_category_router = DefaultRouter()
+inventory_item_router = DefaultRouter()
 user_router.register('', views.UserViewset, basename='user')
 team_router.register('',views.TeamViewset,basename='team')
 membership_router.register('',views. MembershipViewset,basename='member')
 profile_router.register('',views.ProfileViewset,basename='profile')
 profile_image_router.register('',views.ProfileImageViewset,basename='profile')
 profile_skill_router.register('',views.ProfileSkillViewset,basename='skill')
+working_experience_router.register('',views.WorkingExperienceViewset,basename='experience')
+inventory_category_router.register('',inventory_views.ItemCategoryViewset,basename='inventory')
+inventory_item_router.register('',inventory_views.ItemViewset,basename='inventory')
 
 
 urlpatterns = [
@@ -53,7 +60,11 @@ urlpatterns = [
     path("profile/",include(profile_router.urls)),
     path("profile-image/",include(profile_image_router.urls)),
     path("profile-skill/",include(profile_skill_router.urls)),
+    path("work-experience/",include(working_experience_router.urls)),
+    path("inventory-item-category/",include(inventory_category_router.urls)),
+    path("inventory-item/",include(inventory_item_router.urls)),
     path("",include('users.urls')),
+    path("inventory/",include('inventory.urls')),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('swagger.yaml', schema_view.without_ui(cache_timeout=0), name='schema-yaml'),

@@ -7,10 +7,12 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import BasicAuthentication,SessionAuthentication
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import authenticate,logout,login
-from .models import User, Team, Membership, Profile, ProfileImage, Skills
+from django.http.response import JsonResponse
+from django.db.models import OuterRef,Count
+from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
-    ProfileSkillSerializer, LoginSerializer
+    ProfileSkillSerializer, LoginSerializer,WorkingExperienceSerializer,AdminListUserSerializer
 from .permissions import MyPermission, TeamPermission, MembershipPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
 from rest_framework.pagination import PageNumberPagination
@@ -23,6 +25,7 @@ class UserViewset(ModelViewSet):
     permission_classes = [IsAuthenticated,MyPermission]
     pagination_class = MyPagination
     http_method_names = ["get","post",'patch',"delete"]
+
 
     def get_serializer_class(self):
         if self.request.user.role == "admin" and self.action == 'create':
@@ -40,6 +43,32 @@ class UserViewset(ModelViewSet):
             return User.objects.all()
         else:
             return User.objects.filter(id=user.id)
+
+    # def list(self, request, *args, **kwargs):
+    #     my_teams = Team.objects.filter(membership__user=request.user)
+    #     if request.user.role == "admin":
+    #         queryset = User.objects.all()
+    #         serializer = AdminListUserSerializer(queryset,many=True)
+    #         total_users = User.objects.filter(is_active = True).count()
+    #         total_teams = Team.objects.count()
+    #         response = {
+    #             'total_user': total_users,
+    #             'total_teams': total_teams,
+    #
+    #             'users':serializer.data,
+    #
+    #         }
+    #         return Response(response)
+    #     else:
+    #         queryset = User.objects.get(id = request.user.id)
+    #         serializer = UserSerializer(queryset)
+    #
+    #
+    #         return Response(serializer.data)
+
+
+
+
 
 
 
@@ -73,14 +102,17 @@ class TeamViewset(ModelViewSet):
     authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated,TeamPermission]
     pagination_class = MyPagination
-    http_method_names = ["get",'post','patch']
+    http_method_names = ["get",'post','patch','delete']
 
-    def get_queryset(self):
-        user = self.request.user
-        if self.request.user.role == 'admin':
-            return Team.objects.all()
-        else:
-            return Team.objects.filter(leader=user)
+    def list(self, request, *args, **kwargs):
+        # if request.user.role == "admin":
+        #     queryset = Team.objects.all()
+        # else:
+        #     queryset = Team.objects.filter(leader=request.user)
+        queryset = Team.objects.filter(leader=request.user)
+        serializer = TeamSerializer(queryset,many=True)
+
+        return Response(serializer.data)
 
 
 
@@ -88,9 +120,11 @@ class MembershipViewset(ModelViewSet):
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
     authentication_classes = [BasicAuthentication]
-    permission_classes = [IsAuthenticated,MembershipPermission]
+    permission_classes = [IsAuthenticated]
     pagination_class = MyPagination
     http_method_names = ["get",'post','delete']
+
+
 
 
     def get_queryset(self):
@@ -151,6 +185,20 @@ class ProfileSkillViewset(ModelViewSet):
         except:
             return []
 
+class WorkingExperienceViewset(ModelViewSet):
+    queryset = WorkingExperience.objects.all()
+    serializer_class = WorkingExperienceSerializer
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ("get","post","patch","delete")
+    def get_queryset(self):
+        user = self.request.user
+        try:
+            profile = Profile.objects.get(user=self.request.user)
+            working_experience = WorkingExperience.objects.filter(profile=profile)
+            return working_experience
+        except:
+            return []
 
 class LoginAPI(APIView):
     permission_classes = [AllowAny]

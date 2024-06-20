@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from .models import User, Team, Membership, Profile, Education, ProfileImage, Skills
+from .models import User, Team, Membership, Profile, Education, ProfileImage, Skills, WorkingExperience
 from rest_framework.validators import ValidationError
 
 
@@ -72,7 +72,15 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
+class AdminListUserSerializer(serializers.ModelSerializer):
+     class Meta:
+        model = User
+        fields = ['email','date_joined','role','id','is_active','full_name']
 
+     def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['date_joined'] = instance.date_joined.strftime('%Y-%m-%d')
+        return representation
 
 
 class UpdatePasswordSerializer(serializers.Serializer):
@@ -81,16 +89,7 @@ class UpdatePasswordSerializer(serializers.Serializer):
     confirm_password = serializers.CharField(max_length=50)
 
 
-class TeamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Team
-        fields = "__all__"
 
-    def create(self, validated_data):
-        team = Team.objects.create(**validated_data)
-        leader = validated_data.pop('leader')
-        Membership.objects.create(user = leader,team = team)
-        return team
 
 class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
@@ -101,8 +100,20 @@ class MembershipSerializer(serializers.ModelSerializer):
         member = Membership.objects.create(**validated_data)
         return member
 
+class TeamSerializer(serializers.ModelSerializer):
+    members = MembershipSerializer(many=True, read_only=True)
+    class Meta:
+        model = Team
+        fields = ['id','name','leader','members']
+        extra_kwargs = {
+            'id':{'read_only' : True}
+        }
 
-
+    def create(self, validated_data):
+        team = Team.objects.create(**validated_data)
+        leader = validated_data.pop('leader')
+        Membership.objects.create(user = leader,team = team)
+        return team
 
 
 class EductionSerializer(serializers.ModelSerializer):
@@ -197,8 +208,6 @@ class ProfileSkillSerializer(serializers.ModelSerializer):
             )
         ]
 
-
-
     def create(self, validated_data):
         user = self.context['request'].user
         profile = Profile.objects.get(user=user)
@@ -209,6 +218,34 @@ class ProfileSkillSerializer(serializers.ModelSerializer):
             instance.name = validated_data.get('name')
             instance.level = validated_data.get('level')
             instance.description = validated_data.get('description')
+            instance.save()
+            return instance
+
+class WorkingExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkingExperience
+        fields = '__all__'
+        read_only_fields = ('id','profile',)
+        validators = [
+            UniqueTogetherValidator(
+                queryset=WorkingExperience.objects.all(),
+                fields=['title','company_name','joining_date']
+            )
+        ]
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        profile = Profile.objects.get(user=user)
+        working_experience = WorkingExperience.objects.create(**validated_data,profile = profile)
+        return working_experience
+
+    def update(self, instance, validated_data):
+            instance.title = validated_data.get('title')
+            instance.company_name = validated_data.get('company_name')
+            instance.description = validated_data.get('description')
+            instance.joining_date = validated_data.get('joining_date')
+            instance.end_date = validated_data.get('end_date')
+            instance.remarks = validated_data.get('remarks')
             instance.save()
             return instance
 

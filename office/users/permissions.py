@@ -24,10 +24,10 @@ class MyPermission(BasePermission):
 
 class TeamPermission(BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.user.role == "admin":
+        if request.user.role == "admin" or obj.leader == request.user:
             return True
-        if request.method == 'GET' and Team.objects.get(leader = request.user):
-            return True
+        # if request.method == 'GET' and Team.objects.get(leader = request.user):
+        #     return True
         else:
             return False
 
@@ -46,11 +46,14 @@ class MembershipPermission(BasePermission):
             return ValidationError("Only Team Leader can request for data")
 
     def has_permission(self, request, view):
-        is_team_leader = self.check_team_leader_requested(request)
-        if is_team_leader:
-            return True
-        else:
-            return False
+        # is_team_leader = self.check_team_leader_requested(request)
+        # if is_team_leader:
+        #     return True
+        # else:
+        #     return False
+
+
+        pass
 
 
 
