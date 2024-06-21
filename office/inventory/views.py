@@ -1,11 +1,15 @@
 from rest_framework.viewsets import ModelViewSet
 from .models import ItemCategory, Item, StockMovement,UserItemAssignment
-from .serializers import ItemCategorySerializer,ItemSerializer,StockMovementSerializer,UserItemAssignmentSerializer
+from .serializers import ItemCategorySerializer, ItemSerializer, StockMovementSerializer, UserItemAssignmentSerializer, \
+    ItemPartialUpdateSerializer
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from .permissions import ItemPermission
+from rest_framework.response import Response
 # Create your views here.
+
+
 
 class ItemCategoryViewset(ModelViewSet):
     queryset = ItemCategory.objects.all()
@@ -16,6 +20,14 @@ class ItemCategoryViewset(ModelViewSet):
 
 
 
+
+
+
+
+
+
+
+
 class ItemViewset(ModelViewSet):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
@@ -23,6 +35,18 @@ class ItemViewset(ModelViewSet):
     authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated,ItemPermission]
 
+    def get_serializer_class(self):
+        if self.request.method == 'PATCH':
+            return ItemPartialUpdateSerializer
+        return ItemSerializer
+
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = ItemPartialUpdateSerializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
 
 

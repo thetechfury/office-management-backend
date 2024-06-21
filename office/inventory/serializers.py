@@ -99,3 +99,18 @@ class UserItemAssignmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+
+class ItemPartialUpdateSerializer(serializers.ModelSerializer):
+    additional_quantity = serializers.IntegerField(write_only=True, required=True)
+
+    class Meta:
+        model = Item
+        fields = ['additional_quantity']
+
+    def update(self, instance, validated_data):
+        additional_quantity = validated_data.get('additional_quantity', 0)
+        instance.total_quantity += additional_quantity
+        instance.remaining_quantity += additional_quantity
+        instance.save()
+        return instance
