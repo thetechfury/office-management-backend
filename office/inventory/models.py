@@ -11,14 +11,15 @@ class ItemCategory(models.Model):
 
     name = models.CharField(max_length=30,unique=True)
     def __str__(self):
-        return self.get_name_display()
+        return self.name
 
 
 
 class Item(models.Model):
+    total_quantity = models.PositiveIntegerField()
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=300,null=True,blank=True)
-    quantaty = models.PositiveIntegerField()
+    remaining_quantity = models.PositiveIntegerField()
     unit_price = models.PositiveIntegerField()
     category = models.ForeignKey(ItemCategory,on_delete=models.CASCADE)
     location = models.CharField(max_length=200,null=True,blank=True)
@@ -30,8 +31,8 @@ class Item(models.Model):
 
 class StockMovement(models.Model):
     MOVEMENT_TYPE_CHOICES = (
-        ('IN', 'in'),
-        ('OUT', 'out'),
+        ('in', 'In'),
+        ('out', 'Out'),
     )
 
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='stock_movements')
@@ -42,14 +43,15 @@ class StockMovement(models.Model):
     note = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.get_movement_type_display()} {self.quantity_change} of {self.item.name}"
+        return f"{self.get_movement_type_display()} {self.quantity_change} of {self.item.name} to {self.user.email}"
 
 class UserItemAssignment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     assigned_at = models.DateTimeField(auto_now_add=True)
-    remarks = models.CharField(max_length=255, null=True, blank=True)
-
+    quantity = models.PositiveIntegerField()
     def __str__(self):
-        return f"{self.item.name} assigned to {self.user.username}"
+        return f"{self.item.name} assigned to {self.user.email}"
+
+
 

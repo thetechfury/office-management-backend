@@ -41,6 +41,7 @@ profile_skill_router = DefaultRouter()
 working_experience_router = DefaultRouter()
 inventory_category_router = DefaultRouter()
 inventory_item_router = DefaultRouter()
+inventory_stock_movment_router = DefaultRouter()
 user_router.register('', views.UserViewset, basename='user')
 team_router.register('',views.TeamViewset,basename='team')
 membership_router.register('',views. MembershipViewset,basename='member')
@@ -50,6 +51,7 @@ profile_skill_router.register('',views.ProfileSkillViewset,basename='skill')
 working_experience_router.register('',views.WorkingExperienceViewset,basename='experience')
 inventory_category_router.register('',inventory_views.ItemCategoryViewset,basename='inventory')
 inventory_item_router.register('',inventory_views.ItemViewset,basename='inventory')
+inventory_stock_movment_router.register('',inventory_views.StockMovementViewset,basename='inventory')
 
 
 urlpatterns = [
@@ -63,6 +65,7 @@ urlpatterns = [
     path("work-experience/",include(working_experience_router.urls)),
     path("inventory-item-category/",include(inventory_category_router.urls)),
     path("inventory-item/",include(inventory_item_router.urls)),
+    path("inventory-stock-movemnet/",include(inventory_stock_movment_router.urls)),
     path("",include('users.urls')),
     path("inventory/",include('inventory.urls')),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
