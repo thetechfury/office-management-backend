@@ -101,12 +101,17 @@ class UserItemAssignmentSerializer(serializers.ModelSerializer):
 
 
 
+
 class ItemPartialUpdateSerializer(serializers.ModelSerializer):
-    additional_quantity = serializers.IntegerField(write_only=True, required=True)
+    additional_quantity = serializers.IntegerField(write_only=True,required=False)
 
     class Meta:
         model = Item
-        fields = ['additional_quantity']
+        fields = "__all__"
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'remaining_quantity': {'read_only': True},
+        }
 
     def update(self, instance, validated_data):
         additional_quantity = validated_data.get('additional_quantity', 0)

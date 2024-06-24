@@ -8,6 +8,9 @@ info:
   license:
     name: BSD License
   version: v1
+host: 127.0.0.1:8000
+schemes:
+- http
 basePath: /
 consumes:
 - application/json
@@ -19,9 +22,228 @@ securityDefinitions:
 security:
 - Basic: []
 paths:
-  /member/membership/:
+  /auth/login/:
+    post:
+      operationId: auth_login_create
+      description: ''
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags:
+      - auth
+    parameters: []
+  /auth/logout/:
     get:
-      operationId: member_membership_list
+      operationId: auth_logout_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+      - auth
+    parameters: []
+  /inventory-item-category/:
+    get:
+      operationId: inventory-item-category_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ItemCategory'
+      tags:
+      - inventory-item-category
+    post:
+      operationId: inventory-item-category_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/ItemCategory'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/ItemCategory'
+      tags:
+      - inventory-item-category
+    parameters: []
+  /inventory-item-category/{id}/:
+    get:
+      operationId: inventory-item-category_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/ItemCategory'
+      tags:
+      - inventory-item-category
+    patch:
+      operationId: inventory-item-category_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/ItemCategory'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/ItemCategory'
+      tags:
+      - inventory-item-category
+    delete:
+      operationId: inventory-item-category_delete
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - inventory-item-category
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this item category.
+      required: true
+      type: integer
+  /inventory-item/:
+    get:
+      operationId: inventory-item_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Item'
+      tags:
+      - inventory-item
+    post:
+      operationId: inventory-item_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Item'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/Item'
+      tags:
+      - inventory-item
+    parameters: []
+  /inventory-item/{id}/:
+    get:
+      operationId: inventory-item_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Item'
+      tags:
+      - inventory-item
+    patch:
+      operationId: inventory-item_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/ItemPartialUpdate'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/ItemPartialUpdate'
+      tags:
+      - inventory-item
+    delete:
+      operationId: inventory-item_delete
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - inventory-item
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this item.
+      required: true
+      type: integer
+  /inventory-stock-movemnet/:
+    get:
+      operationId: inventory-stock-movemnet_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/StockMovement'
+      tags:
+      - inventory-stock-movemnet
+    post:
+      operationId: inventory-stock-movemnet_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/StockMovement'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/StockMovement'
+      tags:
+      - inventory-stock-movemnet
+    parameters: []
+  /inventory-stock-movemnet/{id}/:
+    get:
+      operationId: inventory-stock-movemnet_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/StockMovement'
+      tags:
+      - inventory-stock-movemnet
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this stock movement.
+      required: true
+      type: integer
+  /member/:
+    get:
+      operationId: member_list
       description: ''
       parameters:
       - name: page
@@ -55,7 +277,7 @@ paths:
       tags:
       - member
     post:
-      operationId: member_membership_create
+      operationId: member_create
       description: ''
       parameters:
       - name: data
@@ -71,9 +293,9 @@ paths:
       tags:
       - member
     parameters: []
-  /member/membership/{id}/:
+  /member/{id}/:
     get:
-      operationId: member_membership_read
+      operationId: member_read
       description: ''
       parameters: []
       responses:
@@ -83,40 +305,8 @@ paths:
             $ref: '#/definitions/Membership'
       tags:
       - member
-    put:
-      operationId: member_membership_update
-      description: ''
-      parameters:
-      - name: data
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/Membership'
-      responses:
-        '200':
-          description: ''
-          schema:
-            $ref: '#/definitions/Membership'
-      tags:
-      - member
-    patch:
-      operationId: member_membership_partial_update
-      description: ''
-      parameters:
-      - name: data
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/Membership'
-      responses:
-        '200':
-          description: ''
-          schema:
-            $ref: '#/definitions/Membership'
-      tags:
-      - member
     delete:
-      operationId: member_membership_delete
+      operationId: member_delete
       description: ''
       parameters: []
       responses:
@@ -130,9 +320,9 @@ paths:
       description: A unique integer value identifying this membership.
       required: true
       type: integer
-  /team/team/:
+  /profile-image/:
     get:
-      operationId: team_team_list
+      operationId: profile-image_list
       description: ''
       parameters: []
       responses:
@@ -141,11 +331,235 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Team'
+              $ref: '#/definitions/ProfileImage'
+      tags:
+      - profile-image
+    post:
+      operationId: profile-image_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/ProfileImage'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/ProfileImage'
+      tags:
+      - profile-image
+    parameters: []
+  /profile-image/{id}/:
+    get:
+      operationId: profile-image_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/ProfileImage'
+      tags:
+      - profile-image
+    put:
+      operationId: profile-image_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/ProfileImage'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/ProfileImage'
+      tags:
+      - profile-image
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this profile image.
+      required: true
+      type: integer
+  /profile-skill/:
+    get:
+      operationId: profile-skill_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProfileSkill'
+      tags:
+      - profile-skill
+    post:
+      operationId: profile-skill_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/ProfileSkill'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/ProfileSkill'
+      tags:
+      - profile-skill
+    parameters: []
+  /profile-skill/{id}/:
+    get:
+      operationId: profile-skill_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/ProfileSkill'
+      tags:
+      - profile-skill
+    patch:
+      operationId: profile-skill_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/ProfileSkill'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/ProfileSkill'
+      tags:
+      - profile-skill
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this skills.
+      required: true
+      type: integer
+  /profile/:
+    get:
+      operationId: profile_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Profile'
+      tags:
+      - profile
+    post:
+      operationId: profile_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Profile'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/Profile'
+      tags:
+      - profile
+    parameters: []
+  /profile/{id}/:
+    get:
+      operationId: profile_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Profile'
+      tags:
+      - profile
+    patch:
+      operationId: profile_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Profile'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Profile'
+      tags:
+      - profile
+    delete:
+      operationId: profile_delete
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - profile
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+  /team/:
+    get:
+      operationId: team_list
+      description: ''
+      parameters:
+      - name: page
+        in: query
+        description: A page number within the paginated result set.
+        required: false
+        type: integer
+      responses:
+        '200':
+          description: ''
+          schema:
+            required:
+            - count
+            - results
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: string
+                format: uri
+                x-nullable: true
+              previous:
+                type: string
+                format: uri
+                x-nullable: true
+              results:
+                type: array
+                items:
+                  $ref: '#/definitions/Team'
       tags:
       - team
     post:
-      operationId: team_team_create
+      operationId: team_create
       description: ''
       parameters:
       - name: data
@@ -161,9 +575,9 @@ paths:
       tags:
       - team
     parameters: []
-  /team/team/{id}/:
+  /team/{id}/:
     get:
-      operationId: team_team_read
+      operationId: team_read
       description: ''
       parameters: []
       responses:
@@ -173,24 +587,8 @@ paths:
             $ref: '#/definitions/Team'
       tags:
       - team
-    put:
-      operationId: team_team_update
-      description: ''
-      parameters:
-      - name: data
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/Team'
-      responses:
-        '200':
-          description: ''
-          schema:
-            $ref: '#/definitions/Team'
-      tags:
-      - team
     patch:
-      operationId: team_team_partial_update
+      operationId: team_partial_update
       description: ''
       parameters:
       - name: data
@@ -206,7 +604,7 @@ paths:
       tags:
       - team
     delete:
-      operationId: team_team_delete
+      operationId: team_delete
       description: ''
       parameters: []
       responses:
@@ -220,6 +618,31 @@ paths:
       description: A unique integer value identifying this team.
       required: true
       type: integer
+  /user/:
+    get:
+      operationId: user_list
+      description: ''
+      parameters:
+      - name: page
+        in: query
+        description: A page number within the paginated result set.
+        required: false
+        type: integer
+      responses:
+        '200':
+          description: ''
+      tags:
+      - user
+    post:
+      operationId: user_create
+      description: ''
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags:
+      - user
+    parameters: []
   /user/update-password/:
     put:
       operationId: user_update-password_update
@@ -237,55 +660,10 @@ paths:
             $ref: '#/definitions/UpdatePassword'
       tags:
       - user
-    patch:
-      operationId: user_update-password_partial_update
-      description: ''
-      parameters:
-      - name: data
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/UpdatePassword'
-      responses:
-        '200':
-          description: ''
-          schema:
-            $ref: '#/definitions/UpdatePassword'
-      tags:
-      - user
     parameters: []
-  /user/users/:
+  /user/{id}/:
     get:
-      operationId: user_users_list
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      tags:
-      - user
-    post:
-      operationId: user_users_create
-      description: ''
-      parameters: []
-      responses:
-        '201':
-          description: ''
-      tags:
-      - user
-    parameters: []
-  /user/users/{id}/:
-    get:
-      operationId: user_users_read
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      tags:
-      - user
-    put:
-      operationId: user_users_update
+      operationId: user_read
       description: ''
       parameters: []
       responses:
@@ -294,7 +672,7 @@ paths:
       tags:
       - user
     patch:
-      operationId: user_users_partial_update
+      operationId: user_partial_update
       description: ''
       parameters: []
       responses:
@@ -303,7 +681,7 @@ paths:
       tags:
       - user
     delete:
-      operationId: user_users_delete
+      operationId: user_delete
       description: ''
       parameters: []
       responses:
@@ -317,7 +695,215 @@ paths:
       description: A unique integer value identifying this user.
       required: true
       type: integer
+  /work-experience/:
+    get:
+      operationId: work-experience_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/WorkingExperience'
+      tags:
+      - work-experience
+    post:
+      operationId: work-experience_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/WorkingExperience'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/WorkingExperience'
+      tags:
+      - work-experience
+    parameters: []
+  /work-experience/{id}/:
+    get:
+      operationId: work-experience_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/WorkingExperience'
+      tags:
+      - work-experience
+    patch:
+      operationId: work-experience_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/WorkingExperience'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/WorkingExperience'
+      tags:
+      - work-experience
+    delete:
+      operationId: work-experience_delete
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - work-experience
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this working experience.
+      required: true
+      type: integer
 definitions:
+  ItemCategory:
+    required:
+    - name
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      name:
+        title: Name
+        type: string
+        maxLength: 30
+        minLength: 1
+  Item:
+    required:
+    - total_quantity
+    - name
+    - unit_price
+    - category
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      total_quantity:
+        title: Total quantity
+        type: integer
+      name:
+        title: Name
+        type: string
+        maxLength: 50
+        minLength: 1
+      description:
+        title: Description
+        type: string
+        maxLength: 300
+        x-nullable: true
+      remaining_quantity:
+        title: Remaining quantity
+        type: integer
+        readOnly: true
+      unit_price:
+        title: Unit price
+        type: integer
+      location:
+        title: Location
+        type: string
+        maxLength: 200
+        x-nullable: true
+      category:
+        title: Category
+        type: integer
+  ItemPartialUpdate:
+    required:
+    - total_quantity
+    - name
+    - unit_price
+    - category
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      additional_quantity:
+        title: Additional quantity
+        type: integer
+      total_quantity:
+        title: Total quantity
+        type: integer
+      name:
+        title: Name
+        type: string
+        maxLength: 50
+        minLength: 1
+      description:
+        title: Description
+        type: string
+        maxLength: 300
+        x-nullable: true
+      remaining_quantity:
+        title: Remaining quantity
+        type: integer
+        readOnly: true
+      unit_price:
+        title: Unit price
+        type: integer
+      location:
+        title: Location
+        type: string
+        maxLength: 200
+        x-nullable: true
+      category:
+        title: Category
+        type: integer
+  StockMovement:
+    required:
+    - quantity_change
+    - movement_type
+    - item
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      quantity_change:
+        title: Quantity change
+        type: integer
+      movement_type:
+        title: Movement type
+        type: string
+        enum:
+        - in
+        - out
+      created_at:
+        title: Created at
+        type: string
+        format: date-time
+        readOnly: true
+      note:
+        title: Note
+        type: string
+        maxLength: 255
+        x-nullable: true
+      item:
+        title: Item
+        type: integer
+      user:
+        title: User
+        type: integer
+        x-nullable: true
   Membership:
     required:
     - user
@@ -334,6 +920,163 @@ definitions:
       team:
         title: Team
         type: integer
+  ProfileImage:
+    required:
+    - title
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      title:
+        title: Title
+        type: string
+        maxLength: 30
+        minLength: 1
+      image:
+        title: Image
+        type: string
+        readOnly: true
+        x-nullable: true
+        format: uri
+      profile:
+        title: Profile
+        type: integer
+        readOnly: true
+  ProfileSkill:
+    required:
+    - name
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      name:
+        title: Name
+        type: string
+        maxLength: 50
+        minLength: 1
+      level:
+        title: Level
+        type: string
+        enum:
+        - beigner
+        - intermediate
+        - expert
+      description:
+        title: Description
+        type: string
+        maxLength: 300
+        x-nullable: true
+      profile:
+        title: Profile
+        type: integer
+        readOnly: true
+  User:
+    required:
+    - email
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      email:
+        title: Email address
+        type: string
+        format: email
+        maxLength: 254
+        minLength: 1
+      role:
+        title: Role
+        type: string
+        enum:
+        - enduser
+        - accountant
+        - manager
+        - inventory_manager
+        - admin
+        readOnly: true
+      first_name:
+        title: First name
+        type: string
+        maxLength: 150
+      last_name:
+        title: Last name
+        type: string
+        maxLength: 150
+  Eduction:
+    required:
+    - degree
+    - total_marks
+    - obtain_marks
+    - start_date
+    - institute
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      degree:
+        title: Degree
+        type: string
+        maxLength: 50
+        minLength: 1
+      total_marks:
+        title: Total marks
+        type: string
+        format: decimal
+      obtain_marks:
+        title: Obtain marks
+        type: string
+        format: decimal
+      start_date:
+        title: Start date
+        type: string
+        format: date
+      end_date:
+        title: End date
+        type: string
+        format: date
+        x-nullable: true
+      institute:
+        title: Institute
+        type: string
+        maxLength: 100
+        minLength: 1
+      profile:
+        title: Profile
+        type: integer
+        readOnly: true
+  Profile:
+    required:
+    - date_of_birth
+    - bio
+    - educations
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      date_of_birth:
+        title: Date of birth
+        type: string
+        format: date
+      bio:
+        title: Bio
+        type: string
+        maxLength: 500
+        minLength: 1
+      user:
+        $ref: '#/definitions/User'
+      educations:
+        type: array
+        items:
+          $ref: '#/definitions/Eduction'
   Team:
     required:
     - name
@@ -352,6 +1095,11 @@ definitions:
       leader:
         title: Leader
         type: integer
+      members:
+        type: array
+        items:
+          $ref: '#/definitions/Membership'
+        readOnly: true
   UpdatePassword:
     required:
     - previous_password
@@ -374,3 +1122,49 @@ definitions:
         type: string
         maxLength: 50
         minLength: 1
+  WorkingExperience:
+    required:
+    - title
+    - company_name
+    - description
+    - joining_date
+    - end_date
+    - remarks
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      title:
+        title: Title
+        type: string
+        maxLength: 50
+        minLength: 1
+      company_name:
+        title: Company name
+        type: string
+        maxLength: 50
+        minLength: 1
+      description:
+        title: Description
+        type: string
+        maxLength: 500
+        minLength: 1
+      joining_date:
+        title: Joining date
+        type: string
+        format: date
+      end_date:
+        title: End date
+        type: string
+        format: date
+      remarks:
+        title: Remarks
+        type: string
+        maxLength: 500
+        minLength: 1
+      profile:
+        title: Profile
+        type: integer
+        readOnly: true

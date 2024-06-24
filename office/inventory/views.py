@@ -7,6 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from .permissions import ItemPermission
 from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from django.utils.decorators import method_decorator
 # Create your views here.
 
 
@@ -60,8 +63,22 @@ class StockMovementViewset(ModelViewSet):
 
 
 
+@method_decorator(name='list', decorator=swagger_auto_schema(
+    operation_description="Assigned Items"
+))
 class UserItemAssignmentAPI(ListAPIView):
+
     queryset = UserItemAssignment.objects.all()
     serializer_class = UserItemAssignmentSerializer
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
     http_method_names = ("get")
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role  not in ['admin','inventory_manager']:
+            return  UserItemAssignment.objects.filter(user_id = user.id)
+        else:
+            return UserItemAssignment.objects.all()
 
