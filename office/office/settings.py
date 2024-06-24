@@ -39,9 +39,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'rest_framework',
     'drf_yasg',
+   'django_filters',
     # Project Apps
      "users",
     "inventory",
+
 ]
 
 MIDDLEWARE = [
@@ -130,4 +132,8 @@ AUTH_USER_MODEL = 'users.User'
 
 SWAGGER_SETTINGS = {
     'DEFAULT_INFO': 'office.swagger.swagger_info',
+}
+#
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }

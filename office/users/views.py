@@ -5,17 +5,16 @@ from rest_framework.generics import UpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import BasicAuthentication,SessionAuthentication
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import authenticate,logout,login
-from django.http.response import JsonResponse
-from django.db.models import OuterRef,Count
 from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
     ProfileSkillSerializer, LoginSerializer,WorkingExperienceSerializer,AdminListUserSerializer
-from .permissions import MyPermission, TeamPermission, MembershipPermission, ProfilePermissions
+from .permissions import MyPermission, TeamPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
-from rest_framework.pagination import PageNumberPagination
 from .paginations import MyPagination
 
 class UserViewset(ModelViewSet):
@@ -23,12 +22,17 @@ class UserViewset(ModelViewSet):
     serializer_class = UserSerializer
     authentication_classes = [SessionAuthentication,BasicAuthentication]
     permission_classes = [IsAuthenticated,MyPermission]
-    pagination_class = MyPagination
+    # pagination_class = MyPagination
     http_method_names = ["get","post",'patch',"delete"]
+    filter_backends = [filters.SearchFilter]
+    # filterset_fields = ['is_active']
+    search_fields = ['users__role']
 
 
     def get_serializer_class(self):
-        if self.request.user.role == "admin" and self.action == 'create':
+        if self.request.user.role == "admin" and self.action == 'list':
+            return AdminListUserSerializer
+        elif self.request.user.role == "admin" and self.action == 'create':
             return AdminUserPostSerializer
         elif self.request.user.role == "admin" and self.action in ['update','partial_update']:
             return AdminUserUpdateSerializer
@@ -39,32 +43,54 @@ class UserViewset(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        user_role = self.request.query_params.get('role')
         if self.request.user.role == 'admin':
+            if user_role:
+                return User.objects.filter(role = user_role)
             return User.objects.all()
         else:
             return User.objects.filter(id=user.id)
 
-    # def list(self, request, *args, **kwargs):
-    #     my_teams = Team.objects.filter(membership__user=request.user)
-    #     if request.user.role == "admin":
-    #         queryset = User.objects.all()
-    #         serializer = AdminListUserSerializer(queryset,many=True)
-    #         total_users = User.objects.filter(is_active = True).count()
-    #         total_teams = Team.objects.count()
-    #         response = {
-    #             'total_user': total_users,
-    #             'total_teams': total_teams,
-    #
-    #             'users':serializer.data,
-    #
-    #         }
-    #         return Response(response)
-    #     else:
-    #         queryset = User.objects.get(id = request.user.id)
-    #         serializer = UserSerializer(queryset)
-    #
-    #
-    #         return Response(serializer.data)
+    def list(self, request, *args, **kwargs):
+        # my_teams = Team.objects.filter(membership__user=request.user)
+        if request.user.role == "admin":
+            queryset = User.objects.all()
+            user_role = self.request.query_params.get('role')
+            user_active = self.request.query_params.get('active')
+            if self.request.user.role == 'admin':
+
+                if user_role and user_active:
+                    queryset = User.objects.filter(role=user_role,is_active = user_active)
+                elif user_role:
+                    queryset = User.objects.filter(role=user_role)
+                elif user_active:
+                    queryset = User.objects.filter(is_active=user_active)
+
+            serializer = AdminListUserSerializer(queryset,many=True)
+            number_of_active_users = User.objects.filter(is_active = True).count()
+            total_users = User.objects.count()
+            total_teams = Team.objects.count()
+            active_user_percentage = self.get_active_user_percentage(total_users,number_of_active_users)
+            response = {
+                'number_of_active_users': number_of_active_users,
+                'total_users': total_users,
+                'total_teams': total_teams,
+                'active_user_percentage':active_user_percentage,
+                'users':serializer.data,
+
+
+            }
+            return Response(response)
+        else:
+            queryset = User.objects.get(id = request.user.id)
+            serializer = UserSerializer(queryset)
+
+
+            return Response(serializer.data)
+
+    def get_active_user_percentage(self,total_user,active_user):
+        active_user_percentage = (active_user/total_user) * 100
+        return active_user_percentage
 
 
 
