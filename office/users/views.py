@@ -199,12 +199,13 @@ class ProfileEducationViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
-        try:
-            profile = Profile.objects.get(user=self.request.user)
-            profile_education = Education.objects.filter(profile=profile)
+        user = self.request.user
+        if user.role == "admin":
+            profile_education = Education.objects.all()
             return profile_education
-        except:
-            return []
+        else:
+            profile = Profile.objects.filter(user = user)
+            return  Education.objects.filter(profile = profile)
 
 
 class ProfileSkillViewset(ModelViewSet):
@@ -241,6 +242,7 @@ class LoginAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
     http_method_names = ["post"]
+
 
     def post(self, request):
         email = request.data.get('email')

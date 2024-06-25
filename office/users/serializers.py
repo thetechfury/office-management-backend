@@ -122,80 +122,8 @@ class EductionSerializer(serializers.ModelSerializer):
         fields = "__all__"
         extra_kwargs ={
             'id':{'read_only':True},
-            'profile': {"read_only" : True}
+            'profile': {"write_only" : True}
         }
-
-class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    educations =  EductionSerializer(many = True,read_only=True)
-    class Meta:
-        model = Profile
-        fields = ['id','date_of_birth','bio','phone','user','educations']
-        read_only_fields = ('id','user')
-
-
-    def validate(self, data):
-        user = self.context['request'].user
-        if Profile.objects.filter(user=user).exists() and self.context['view'].action != 'update':
-            raise serializers.ValidationError("A profile already exists for this user.")
-        return data
-
-
-
-    def create(self, validated_data):
-        user = self.context['request'].user
-        # educations = validated_data.pop('educations')
-        profile = Profile.objects.create(**validated_data,user = user)
-        # for education in educations:
-        #     Education.objects.create(**education,profile = profile)
-
-        return profile
-
-
-    def update(self, instance, validated_data):
-            educations_data = validated_data.pop('educations',None)
-            instance.bio = validated_data.get('bio', instance.bio)
-            instance.date_of_birth = validated_data.get('date_of_birth', instance.date_of_birth)
-            instance.save()
-
-            # # Update or create educations
-            # if educations_data:
-            #     Education.objects.filter(profile = instance) .delete()
-            #     for education in educations_data:
-            #        Education.objects.create(**education,profile = instance)
-            return instance
-
-
-class ProfileImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProfileImage
-        fields = '__all__'
-        read_only_fields = ('id','profile',)
-
-    def validate(self, data):
-        user = self.context['request'].user
-        try:
-            profile = Profile.objects.get(user=user)
-            if ProfileImage.objects.filter(profile=profile).exists() and self.context['view'].action != 'update':
-                raise serializers.ValidationError("A profile image already exists for this user.")
-            return data
-        except:
-            raise serializers.ValidationError(f"No Profile created against {user.email} user ")
-
-
-    def create(self, validated_data):
-        user = self.context['request'].user
-        profile = Profile.objects.get(user=user)
-        profile_image = ProfileImage.objects.create(**validated_data,profile = profile)
-        return profile_image
-
-    def update(self, instance, validated_data):
-            instance.title = validated_data.get('title')
-            instance.save()
-            return instance
-    
-
-
 class ProfileSkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skills
@@ -220,6 +148,35 @@ class ProfileSkillSerializer(serializers.ModelSerializer):
             instance.description = validated_data.get('description')
             instance.save()
             return instance
+
+
+class ProfileImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileImage
+        fields = '__all__'
+        read_only_fields = ('id', 'profile',)
+
+    def validate(self, data):
+        user = self.context['request'].user
+        try:
+            profile = Profile.objects.get(user=user)
+            if ProfileImage.objects.filter(profile=profile).exists() and self.context['view'].action != 'update':
+                raise serializers.ValidationError("A profile image already exists for this user.")
+            return data
+        except:
+            raise serializers.ValidationError(f"No Profile created against {user.email} user ")
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        profile = Profile.objects.get(user=user)
+        profile_image = ProfileImage.objects.create(**validated_data, profile=profile)
+        return profile_image
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title')
+        instance.save()
+        return instance
+
 
 class WorkingExperienceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -251,21 +208,64 @@ class WorkingExperienceSerializer(serializers.ModelSerializer):
 
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    educations =  EductionSerializer(many = True,read_only=True)
+    profile_image = ProfileImageSerializer(read_only = True)
+    skills = ProfileSkillSerializer(many = True,read_only = True)
+    experience = WorkingExperienceSerializer(many = True,read_only = True)
+    class Meta:
+        model = Profile
+        fields = ['id','date_of_birth','bio','phone','user','educations','profile_image','skills','experience']
+        read_only_fields = ('id','user')
+
+
+    def validate(self, data):
+        user = self.context['request'].user
+        if Profile.objects.filter(user=user).exists() and self.context['view'].action != 'update':
+            raise serializers.ValidationError("A profile already exists for this user.")
+        return data
+
+
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        profile = Profile.objects.create(**validated_data,user = user)
+        return profile
+
+
+    def update(self, instance, validated_data):
+            instance.bio = validated_data.get('bio', instance.bio)
+            instance.date_of_birth = validated_data.get('date_of_birth', instance.date_of_birth)
+            instance.save()
+            return instance
+
+
+
+
+
+
+
 class ProfileEducationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Education
         fields = '__all__'
-        read_only_fields = ('id','profile',)
+        read_only_fields = ('id', 'profile',)
+
+
         validators = [
             UniqueTogetherValidator(
                 queryset=Education.objects.all(),
-                fields=['degree','profile']
+                fields=['degree']
             )
         ]
 
     def create(self, validated_data):
         user = self.context['request'].user
-        profile = Profile.objects.get(user=user)
+        try:
+            profile = Profile.objects.get(user=user)
+        except:
+            serializers.ValidationError("To add Education User must has profile")
         profile_education = Education.objects.create(**validated_data,profile = profile)
         return profile_education
 
