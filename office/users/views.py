@@ -9,11 +9,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import authenticate,logout,login
-from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience, Education
+from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience, Education,Address
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
     ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer, AdminListUserSerializer, \
-    ProfileEducationSerializer
+    ProfileEducationSerializer,AddressSerializer
 from .permissions import MyPermission, TeamPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
 from .paginations import MyPagination
@@ -199,13 +199,30 @@ class ProfileEducationViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
-        try:
-            profile = Profile.objects.get(user=self.request.user)
-            profile_education = Education.objects.filter(profile=profile)
+        user = self.request.user
+        if user.role == "admin":
+            profile_education = Education.objects.all()
             return profile_education
-        except:
-            return []
+        else:
+            profile = Profile.objects.filter(user = user)
+            return  Education.objects.filter(profile = profile)
 
+
+
+class ProfileAddressViewset(ModelViewSet):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ("get","post","put")
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "admin":
+            profile_address = Address.objects.all()
+            return profile_address
+        else:
+            profile = Profile.objects.filter(user = user)
+            return  Address.objects.filter(profile = profile)
 
 class ProfileSkillViewset(ModelViewSet):
     queryset = Skills.objects.all()
@@ -241,6 +258,7 @@ class LoginAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
     http_method_names = ["post"]
+
 
     def post(self, request):
         email = request.data.get('email')

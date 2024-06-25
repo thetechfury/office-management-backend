@@ -40,6 +40,7 @@ profile_image_router = DefaultRouter()
 profile_skill_router = DefaultRouter()
 profile_education_router = DefaultRouter()
 working_experience_router = DefaultRouter()
+address_router = DefaultRouter()
 inventory_category_router = DefaultRouter()
 inventory_item_router = DefaultRouter()
 inventory_stock_movment_router = DefaultRouter()
@@ -50,6 +51,7 @@ profile_router.register('',views.ProfileViewset,basename='profile')
 profile_education_router.register('',views.ProfileEducationViewset,basename='profile-education')
 profile_image_router.register('',views.ProfileImageViewset,basename='profile')
 profile_skill_router.register('',views.ProfileSkillViewset,basename='skill')
+address_router.register('',views.ProfileAddressViewset,basename='address')
 working_experience_router.register('',views.WorkingExperienceViewset,basename='experience')
 inventory_category_router.register('',inventory_views.ItemCategoryViewset,basename='inventory')
 inventory_item_router.register('',inventory_views.ItemViewset,basename='inventory')
@@ -65,6 +67,7 @@ urlpatterns = [
     path("profile-image/",include(profile_image_router.urls)),
     path("profile-education/",include(profile_education_router.urls)),
     path("profile-skill/",include(profile_skill_router.urls)),
+    path("profile-address/",include(address_router.urls)),
     path("work-experience/",include(working_experience_router.urls)),
     path("inventory-item-category/",include(inventory_category_router.urls)),
     path("inventory-item/",include(inventory_item_router.urls)),
