@@ -9,10 +9,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import authenticate,logout,login
-from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience
+from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience, Education
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
-    ProfileSkillSerializer, LoginSerializer,WorkingExperienceSerializer,AdminListUserSerializer
+    ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer, AdminListUserSerializer, \
+    ProfileEducationSerializer
 from .permissions import MyPermission, TeamPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
 from .paginations import MyPagination
@@ -52,19 +53,16 @@ class UserViewset(ModelViewSet):
             return User.objects.filter(id=user.id)
 
     def list(self, request, *args, **kwargs):
-        # my_teams = Team.objects.filter(membership__user=request.user)
         if request.user.role == "admin":
             queryset = User.objects.all()
             user_role = self.request.query_params.get('role')
             user_active = self.request.query_params.get('active')
-            if self.request.user.role == 'admin':
-
-                if user_role and user_active:
-                    queryset = User.objects.filter(role=user_role,is_active = user_active)
-                elif user_role:
-                    queryset = User.objects.filter(role=user_role)
-                elif user_active:
-                    queryset = User.objects.filter(is_active=user_active)
+            if user_role and user_active:
+                queryset = User.objects.filter(role=user_role,is_active = user_active)
+            elif user_role:
+                queryset = User.objects.filter(role=user_role)
+            elif user_active:
+                queryset = User.objects.filter(is_active=user_active)
 
             serializer = AdminListUserSerializer(queryset,many=True)
             number_of_active_users = User.objects.filter(is_active = True).count()
@@ -194,6 +192,19 @@ class ProfileImageViewset(ModelViewSet):
         except:
             return []
 
+class ProfileEducationViewset(ModelViewSet):
+    queryset = Education.objects.all()
+    serializer_class = ProfileEducationSerializer
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ("get","post","put")
+    def get_queryset(self):
+        try:
+            profile = Profile.objects.get(user=self.request.user)
+            profile_education = Education.objects.filter(profile=profile)
+            return profile_education
+        except:
+            return []
 
 
 class ProfileSkillViewset(ModelViewSet):

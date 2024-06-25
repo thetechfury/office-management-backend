@@ -71,7 +71,7 @@ class Education(models.Model):
     total_marks = models.DecimalField(decimal_places=2,max_digits=6)
     obtain_marks = models.DecimalField(decimal_places=2,max_digits=6)
     start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField()
     institute = models.CharField(max_length=100)
     profile = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name='educations')
 

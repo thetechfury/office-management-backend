@@ -55,7 +55,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email','role','first_name','last_name']
+        fields = ['id', 'email','role','full_name']
         extra_kwargs = {
             'password': {'write_only': True},
             'is_superuser': {'read_only': True},
@@ -127,10 +127,10 @@ class EductionSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    educations =  EductionSerializer(many = True)
+    educations =  EductionSerializer(many = True,read_only=True)
     class Meta:
         model = Profile
-        fields = ['id','date_of_birth','bio','user','educations']
+        fields = ['id','date_of_birth','bio','phone','user','educations']
         read_only_fields = ('id','user')
 
 
@@ -144,10 +144,10 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        educations = validated_data.pop('educations')
+        # educations = validated_data.pop('educations')
         profile = Profile.objects.create(**validated_data,user = user)
-        for education in educations:
-            Education.objects.create(**education,profile = profile)
+        # for education in educations:
+        #     Education.objects.create(**education,profile = profile)
 
         return profile
 
@@ -158,11 +158,11 @@ class ProfileSerializer(serializers.ModelSerializer):
             instance.date_of_birth = validated_data.get('date_of_birth', instance.date_of_birth)
             instance.save()
 
-            # Update or create educations
-            if educations_data:
-                Education.objects.filter(profile = instance) .delete()
-                for education in educations_data:
-                   Education.objects.create(**education,profile = instance)
+            # # Update or create educations
+            # if educations_data:
+            #     Education.objects.filter(profile = instance) .delete()
+            #     for education in educations_data:
+            #        Education.objects.create(**education,profile = instance)
             return instance
 
 
@@ -248,6 +248,38 @@ class WorkingExperienceSerializer(serializers.ModelSerializer):
             instance.remarks = validated_data.get('remarks')
             instance.save()
             return instance
+
+
+
+class ProfileEducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        fields = '__all__'
+        read_only_fields = ('id','profile',)
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Education.objects.all(),
+                fields=['degree','profile']
+            )
+        ]
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        profile = Profile.objects.get(user=user)
+        profile_education = Education.objects.create(**validated_data,profile = profile)
+        return profile_education
+
+    def update(self, instance, validated_data):
+            instance.degree = validated_data.get('degree')
+            instance.total_marks = validated_data.get('total_marks')
+            instance.obtain_marks = validated_data.get('obtain_marks')
+            instance.start_date = validated_data.get('start_date')
+            instance.end_date = validated_data.get('end_date')
+            instance.institute = validated_data.get('institute')
+            instance.save()
+            return instance
+
+
 
 
 class LoginSerializer(serializers.Serializer):
