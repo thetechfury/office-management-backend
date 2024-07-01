@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  title: My API
+  title: Office management system
   description: API description
   termsOfService: https://www.google.com/policies/terms/
   contact:
@@ -8,9 +8,6 @@ info:
   license:
     name: BSD License
   version: v1
-host: 127.0.0.1:8000
-schemes:
-- http
 basePath: /
 consumes:
 - application/json
@@ -22,6 +19,96 @@ securityDefinitions:
 security:
 - Basic: []
 paths:
+  /attendence-shift/:
+    get:
+      operationId: attendence-shift_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Shift'
+      tags:
+      - attendence-shift
+    post:
+      operationId: attendence-shift_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Shift'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/Shift'
+      tags:
+      - attendence-shift
+    parameters: []
+  /attendence-shift/{id}/:
+    get:
+      operationId: attendence-shift_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Shift'
+      tags:
+      - attendence-shift
+    put:
+      operationId: attendence-shift_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Shift'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Shift'
+      tags:
+      - attendence-shift
+    patch:
+      operationId: attendence-shift_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Shift'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Shift'
+      tags:
+      - attendence-shift
+    delete:
+      operationId: attendence-shift_delete
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - attendence-shift
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this shift.
+      required: true
+      type: integer
   /auth/login/:
     post:
       operationId: auth_login_create
@@ -126,26 +213,15 @@ paths:
       responses:
         '200':
           description: ''
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Item'
       tags:
       - inventory-item
     post:
       operationId: inventory-item_create
       description: ''
-      parameters:
-      - name: data
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/Item'
+      parameters: []
       responses:
         '201':
           description: ''
-          schema:
-            $ref: '#/definitions/Item'
       tags:
       - inventory-item
     parameters: []
@@ -157,24 +233,15 @@ paths:
       responses:
         '200':
           description: ''
-          schema:
-            $ref: '#/definitions/Item'
       tags:
       - inventory-item
     patch:
       operationId: inventory-item_partial_update
       description: ''
-      parameters:
-      - name: data
-        in: body
-        required: true
-        schema:
-          $ref: '#/definitions/ItemPartialUpdate'
+      parameters: []
       responses:
         '200':
           description: ''
-          schema:
-            $ref: '#/definitions/ItemPartialUpdate'
       tags:
       - inventory-item
     delete:
@@ -318,6 +385,136 @@ paths:
     - name: id
       in: path
       description: A unique integer value identifying this membership.
+      required: true
+      type: integer
+  /profile-address/:
+    get:
+      operationId: profile-address_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Address'
+      tags:
+      - profile-address
+    post:
+      operationId: profile-address_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Address'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/Address'
+      tags:
+      - profile-address
+    parameters: []
+  /profile-address/{id}/:
+    get:
+      operationId: profile-address_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Address'
+      tags:
+      - profile-address
+    put:
+      operationId: profile-address_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Address'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Address'
+      tags:
+      - profile-address
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this address.
+      required: true
+      type: integer
+  /profile-education/:
+    get:
+      operationId: profile-education_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProfileEducation'
+      tags:
+      - profile-education
+    post:
+      operationId: profile-education_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/ProfileEducation'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/ProfileEducation'
+      tags:
+      - profile-education
+    parameters: []
+  /profile-education/{id}/:
+    get:
+      operationId: profile-education_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/ProfileEducation'
+      tags:
+      - profile-education
+    put:
+      operationId: profile-education_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/ProfileEducation'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/ProfileEducation'
+      tags:
+      - profile-education
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this education.
       required: true
       type: integer
   /profile-image/:
@@ -523,6 +720,96 @@ paths:
       in: path
       required: true
       type: string
+  /shift-break/:
+    get:
+      operationId: shift-break_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Break'
+      tags:
+      - shift-break
+    post:
+      operationId: shift-break_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Break'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/Break'
+      tags:
+      - shift-break
+    parameters: []
+  /shift-break/{id}/:
+    get:
+      operationId: shift-break_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Break'
+      tags:
+      - shift-break
+    put:
+      operationId: shift-break_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Break'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Break'
+      tags:
+      - shift-break
+    patch:
+      operationId: shift-break_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Break'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Break'
+      tags:
+      - shift-break
+    delete:
+      operationId: shift-break_delete
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - shift-break
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this break.
+      required: true
+      type: integer
   /team/:
     get:
       operationId: team_list
@@ -618,16 +905,106 @@ paths:
       description: A unique integer value identifying this team.
       required: true
       type: integer
+  /user-shift/:
+    get:
+      operationId: user-shift_list
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Break'
+      tags:
+      - user-shift
+    post:
+      operationId: user-shift_create
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Break'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/Break'
+      tags:
+      - user-shift
+    parameters: []
+  /user-shift/{id}/:
+    get:
+      operationId: user-shift_read
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Break'
+      tags:
+      - user-shift
+    put:
+      operationId: user-shift_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Break'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Break'
+      tags:
+      - user-shift
+    patch:
+      operationId: user-shift_partial_update
+      description: ''
+      parameters:
+      - name: data
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/Break'
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Break'
+      tags:
+      - user-shift
+    delete:
+      operationId: user-shift_delete
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - user-shift
+    parameters:
+    - name: id
+      in: path
+      description: A unique integer value identifying this break.
+      required: true
+      type: integer
   /user/:
     get:
       operationId: user_list
       description: ''
       parameters:
-      - name: page
+      - name: search
         in: query
-        description: A page number within the paginated result set.
+        description: A search term.
         required: false
-        type: integer
+        type: string
       responses:
         '200':
           description: ''
@@ -770,6 +1147,61 @@ paths:
       required: true
       type: integer
 definitions:
+  Break:
+    required:
+    - shift
+    - start_time
+    - end_time
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      shift:
+        title: Shift
+        type: integer
+      start_time:
+        title: Start time
+        type: string
+      end_time:
+        title: End time
+        type: string
+      duration:
+        title: Duration
+        type: string
+        readOnly: true
+  Shift:
+    required:
+    - start_time
+    - end_time
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      name:
+        title: Name
+        type: string
+        enum:
+        - Morning
+        - Night
+      description:
+        title: Description
+        type: string
+        x-nullable: true
+      start_time:
+        title: Start time
+        type: string
+      end_time:
+        title: End time
+        type: string
+      breaks:
+        type: array
+        items:
+          $ref: '#/definitions/Break'
+        readOnly: true
   ItemCategory:
     required:
     - name
@@ -784,89 +1216,6 @@ definitions:
         type: string
         maxLength: 30
         minLength: 1
-  Item:
-    required:
-    - total_quantity
-    - name
-    - unit_price
-    - category
-    type: object
-    properties:
-      id:
-        title: ID
-        type: integer
-        readOnly: true
-      total_quantity:
-        title: Total quantity
-        type: integer
-      name:
-        title: Name
-        type: string
-        maxLength: 50
-        minLength: 1
-      description:
-        title: Description
-        type: string
-        maxLength: 300
-        x-nullable: true
-      remaining_quantity:
-        title: Remaining quantity
-        type: integer
-        readOnly: true
-      unit_price:
-        title: Unit price
-        type: integer
-      location:
-        title: Location
-        type: string
-        maxLength: 200
-        x-nullable: true
-      category:
-        title: Category
-        type: integer
-  ItemPartialUpdate:
-    required:
-    - total_quantity
-    - name
-    - unit_price
-    - category
-    type: object
-    properties:
-      id:
-        title: ID
-        type: integer
-        readOnly: true
-      additional_quantity:
-        title: Additional quantity
-        type: integer
-      total_quantity:
-        title: Total quantity
-        type: integer
-      name:
-        title: Name
-        type: string
-        maxLength: 50
-        minLength: 1
-      description:
-        title: Description
-        type: string
-        maxLength: 300
-        x-nullable: true
-      remaining_quantity:
-        title: Remaining quantity
-        type: integer
-        readOnly: true
-      unit_price:
-        title: Unit price
-        type: integer
-      location:
-        title: Location
-        type: string
-        maxLength: 200
-        x-nullable: true
-      category:
-        title: Category
-        type: integer
   StockMovement:
     required:
     - quantity_change
@@ -920,9 +1269,87 @@ definitions:
       team:
         title: Team
         type: integer
-  ProfileImage:
+  Address:
     required:
-    - title
+    - city
+    - state
+    - country
+    - street
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      city:
+        title: City
+        type: string
+        maxLength: 50
+        minLength: 1
+      state:
+        title: State
+        type: string
+        maxLength: 50
+        minLength: 1
+      country:
+        title: Country
+        type: string
+        maxLength: 50
+        minLength: 1
+      street:
+        title: Street
+        type: string
+        maxLength: 50
+        minLength: 1
+      profile:
+        title: Profile
+        type: integer
+        readOnly: true
+  ProfileEducation:
+    required:
+    - degree
+    - total_marks
+    - obtain_marks
+    - start_date
+    - end_date
+    - institute
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      degree:
+        title: Degree
+        type: string
+        maxLength: 50
+        minLength: 1
+      total_marks:
+        title: Total marks
+        type: string
+        format: decimal
+      obtain_marks:
+        title: Obtain marks
+        type: string
+        format: decimal
+      start_date:
+        title: Start date
+        type: string
+        format: date
+      end_date:
+        title: End date
+        type: string
+        format: date
+      institute:
+        title: Institute
+        type: string
+        maxLength: 100
+        minLength: 1
+      profile:
+        title: Profile
+        type: integer
+        readOnly: true
+  ProfileImage:
     type: object
     properties:
       id:
@@ -933,7 +1360,7 @@ definitions:
         title: Title
         type: string
         maxLength: 30
-        minLength: 1
+        x-nullable: true
       image:
         title: Image
         type: string
@@ -999,21 +1426,19 @@ definitions:
         - inventory_manager
         - admin
         readOnly: true
-      first_name:
-        title: First name
+      full_name:
+        title: Full name
         type: string
-        maxLength: 150
-      last_name:
-        title: Last name
-        type: string
-        maxLength: 150
+        readOnly: true
   Eduction:
     required:
     - degree
     - total_marks
     - obtain_marks
     - start_date
+    - end_date
     - institute
+    - profile
     type: object
     properties:
       id:
@@ -1041,7 +1466,6 @@ definitions:
         title: End date
         type: string
         format: date
-        x-nullable: true
       institute:
         title: Institute
         type: string
@@ -1050,78 +1474,6 @@ definitions:
       profile:
         title: Profile
         type: integer
-        readOnly: true
-  Profile:
-    required:
-    - date_of_birth
-    - bio
-    - educations
-    type: object
-    properties:
-      id:
-        title: ID
-        type: integer
-        readOnly: true
-      date_of_birth:
-        title: Date of birth
-        type: string
-        format: date
-      bio:
-        title: Bio
-        type: string
-        maxLength: 500
-        minLength: 1
-      user:
-        $ref: '#/definitions/User'
-      educations:
-        type: array
-        items:
-          $ref: '#/definitions/Eduction'
-  Team:
-    required:
-    - name
-    - leader
-    type: object
-    properties:
-      id:
-        title: ID
-        type: integer
-        readOnly: true
-      name:
-        title: Name
-        type: string
-        maxLength: 100
-        minLength: 1
-      leader:
-        title: Leader
-        type: integer
-      members:
-        type: array
-        items:
-          $ref: '#/definitions/Membership'
-        readOnly: true
-  UpdatePassword:
-    required:
-    - previous_password
-    - new_password
-    - confirm_password
-    type: object
-    properties:
-      previous_password:
-        title: Previous password
-        type: string
-        maxLength: 50
-        minLength: 1
-      new_password:
-        title: New password
-        type: string
-        maxLength: 50
-        minLength: 1
-      confirm_password:
-        title: Confirm password
-        type: string
-        maxLength: 50
-        minLength: 1
   WorkingExperience:
     required:
     - title
@@ -1168,3 +1520,94 @@ definitions:
         title: Profile
         type: integer
         readOnly: true
+  Profile:
+    required:
+    - date_of_birth
+    - bio
+    - phone
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      date_of_birth:
+        title: Date of birth
+        type: string
+        format: date
+      bio:
+        title: Bio
+        type: string
+        maxLength: 500
+        minLength: 1
+      phone:
+        title: Phone
+        type: string
+        maxLength: 13
+        minLength: 1
+      user:
+        $ref: '#/definitions/User'
+      educations:
+        type: array
+        items:
+          $ref: '#/definitions/Eduction'
+        readOnly: true
+      profile_image:
+        $ref: '#/definitions/ProfileImage'
+      skills:
+        type: array
+        items:
+          $ref: '#/definitions/ProfileSkill'
+        readOnly: true
+      experience:
+        type: array
+        items:
+          $ref: '#/definitions/WorkingExperience'
+        readOnly: true
+      address:
+        $ref: '#/definitions/Address'
+  Team:
+    required:
+    - name
+    - leader
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      name:
+        title: Name
+        type: string
+        maxLength: 100
+        minLength: 1
+      leader:
+        title: Leader
+        type: integer
+      members:
+        type: array
+        items:
+          $ref: '#/definitions/Membership'
+        readOnly: true
+  UpdatePassword:
+    required:
+    - previous_password
+    - new_password
+    - confirm_password
+    type: object
+    properties:
+      previous_password:
+        title: Previous password
+        type: string
+        maxLength: 50
+        minLength: 1
+      new_password:
+        title: New password
+        type: string
+        maxLength: 50
+        minLength: 1
+      confirm_password:
+        title: Confirm password
+        type: string
+        maxLength: 50
+        minLength: 1
