@@ -45,7 +45,6 @@ address_router = DefaultRouter()
 inventory_category_router = DefaultRouter()
 inventory_item_router = DefaultRouter()
 inventory_stock_movment_router = DefaultRouter()
-shift_router = DefaultRouter()
 break_router = DefaultRouter()
 user_shift_router = DefaultRouter()
 user_router.register('', views.UserViewset, basename='user')
@@ -60,7 +59,6 @@ working_experience_router.register('',views.WorkingExperienceViewset,basename='e
 inventory_category_router.register('',inventory_views.ItemCategoryViewset,basename='inventory')
 inventory_item_router.register('',inventory_views.ItemViewset,basename='inventory')
 inventory_stock_movment_router.register('',inventory_views.StockMovementViewset,basename='inventory')
-shift_router.register('',attendence_view.ShiftViewSet,basename='shift')
 break_router.register('',attendence_view.BreakViewSet,basename='shift-break')
 user_shift_router.register('',attendence_view.UserShiftViewSet,basename='shift-break')
 
@@ -79,10 +77,10 @@ urlpatterns = [
     path("inventory-item-category/",include(inventory_category_router.urls)),
     path("inventory-item/",include(inventory_item_router.urls)),
     path("inventory-stock-movemnet/",include(inventory_stock_movment_router.urls)),
-    path("attendence-shift/",include(shift_router.urls)),
     path("shift-break/",include(break_router.urls)),
-    path("user-shift/",include(break_router.urls)),
+    path("user-shift/",include(user_shift_router.urls)),
     path("",include('users.urls')),
+    path("attendece/",include('attendence.urls')),
     path("inventory/",include('inventory.urls')),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

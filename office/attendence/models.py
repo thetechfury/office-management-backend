@@ -44,3 +44,26 @@ class UserShift(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.shift.name} on {self.date}"
 
+
+class Attendence(models.Model):
+    CLOCK_IN = 'clock_in'
+    CLOCK_OUT = 'clock_out'
+    OPERTAION_CHOICES = (
+        (CLOCK_IN,"Clock In"),
+        (CLOCK_OUT,"Clock Out")
+    )
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    date = models.DateTimeField(auto_now=True)
+    operation  = models.CharField(choices=OPERTAION_CHOICES,default=CLOCK_IN,max_length=10)
+
+    def get_user_shift(self):
+        try:
+            return UserShift.objects.get(user=self.user)
+        except UserShift.DoesNotExist:
+            return None
+
+    def __str__(self):
+        return f"{self.user.email} {self.operation}"
+
+
+

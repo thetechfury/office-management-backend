@@ -4,5 +4,12 @@ class OnlyAdminPermission(BasePermission):
     def has_permission(self, request, view):
         if request.user.role == 'admin':
             return True
-        else:
-            return False
+        return False
+
+class OnlyAdminCanUpdateOrDelete(BasePermission):
+    def has_permission(self, request, view):
+        if request.method in ["PATCH","DELETE"] :
+           return request.user.role == "admin"
+        return True
+
+

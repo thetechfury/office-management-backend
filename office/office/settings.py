@@ -44,8 +44,8 @@ INSTALLED_APPS = [
     # Project Apps
      "users",
     "inventory",
-    "attendence"
-
+    "attendence",
+    "leave_management",
 ]
 
 MIDDLEWARE = [

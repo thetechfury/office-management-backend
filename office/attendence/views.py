@@ -1,8 +1,9 @@
 from rest_framework import viewsets
-from .models import Shift,Break,UserShift
-from .serializers import ShiftSerializer
-from .serializers import BreakSerializer,UserShiftSerializer
-from .permissions import OnlyAdminPermission
+from .models import Shift,Break,UserShift,Attendence
+from .serializers import BreakSerializer,UserShiftSerializer,ShiftSerializer,AttendenceSerializer
+from .permissions import OnlyAdminPermission,OnlyAdminCanUpdateOrDelete
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 class ShiftViewSet(viewsets.ModelViewSet):
@@ -20,3 +21,15 @@ class UserShiftViewSet(viewsets.ModelViewSet):
     queryset = UserShift.objects.all()
     serializer_class = UserShiftSerializer
     permission_classes = [OnlyAdminPermission]
+
+class AttendenceViewset(viewsets.ModelViewSet):
+    serializer_class = AttendenceSerializer
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated,OnlyAdminCanUpdateOrDelete]
+    http_method_names = ("get", "post", "patch", "delete")
+
+    def get_queryset(self):
+        if self.request.user.role != "admin":
+            return Attendence.objects.filter(user = self.request.user)
+
+        return Attendence.objects.all().order_by('-date')

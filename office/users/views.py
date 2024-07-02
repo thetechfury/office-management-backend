@@ -167,6 +167,8 @@ class ProfileViewset(ModelViewSet):
     permission_classes = [IsAuthenticated,ProfilePermissions]
     http_method_names = ["get",'post','delete','patch']
 
+
+
     def get_queryset(self):
         user = self.request.user
         if user.role == "admin":
@@ -199,6 +201,10 @@ class ProfileEducationViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            # Return an empty queryset or a queryset with dummy data to avoid issues during schema generation
+            return Profile.objects.none()
+
         user = self.request.user
         if user.role == "admin":
             profile_education = Education.objects.all()
@@ -216,6 +222,10 @@ class ProfileAddressViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            # Return an empty queryset or a queryset with dummy data to avoid issues during schema generation
+            return Address.objects.none()
+
         user = self.request.user
         if user.role == "admin":
             profile_address = Address.objects.all()
