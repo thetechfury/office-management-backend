@@ -283,7 +283,7 @@ class LoginAPI(APIView):
                 raise ValidationError("Incorrect username or password.")
             else:
                 login(request, user)
-                csrf_token = get_token(request)
+                csrf_token = request.headers.get('Cookie').split()[0]
                 session = request.session.session_key
                 response =  Response({"response": "You are successfully logged in.","csrftoken":csrf_token,"sessionid":session})
                 return response
