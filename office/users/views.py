@@ -17,6 +17,8 @@ from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerialize
 from .permissions import MyPermission, TeamPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
 from .paginations import MyPagination
+from django.middleware.csrf import get_token
+
 
 class UserViewset(ModelViewSet):
     queryset = User.objects.all()
@@ -281,10 +283,9 @@ class LoginAPI(APIView):
                 raise ValidationError("Incorrect username or password.")
             else:
                 login(request, user)
-                cookie = request.headers.get('Cookie').split(';')
-                csrftoken = cookie[0]
-                sessionid = cookie[1]
-                response =  Response({"response": "You are successfully logged in.","csrftoken":csrftoken,"sessionid":sessionid})
+                csrf_token = get_token(request)
+                session = request.session.session_key
+                response =  Response({"response": "You are successfully logged in.","csrftoken":csrf_token,"sessiid":session})
                 return response
         else:
             return Response(serializer.errors, status=400)
