@@ -4,21 +4,21 @@ from users.models import User
 from rest_framework import serializers
 
 # Create your models here.
-class LeaveApplication(models.Model):
-    CASUAL = 'casual'
-    ANNUAL = 'annual'
-    MEDICAL = 'medical'
+CASUAL = 'casual'
+ANNUAL = 'annual'
+MEDICAL = 'medical'
 
+Leave_type = (
+    (CASUAL, "Casual"),
+    (ANNUAL, "Annual"),
+    (MEDICAL, "Medical")
+)
+
+
+class LeaveApplication(models.Model):
     PENDING = 'pending'
     ACCEPTED = 'accepted'
     REJECTED = 'rejected'
-
-
-    Leave_type = (
-        (CASUAL, "Casual"),
-        (ANNUAL, "Annual"),
-        (MEDICAL,"Medical")
-    )
 
     Leave_status = (
         (PENDING, "Pending"),
@@ -27,7 +27,7 @@ class LeaveApplication(models.Model):
     )
 
     application_date = models.DateField(auto_now=True)
-    leave_type = models.CharField(max_length=8,default=PENDING,choices=Leave_type)
+    leave_type = models.CharField(max_length=8,default=MEDICAL,choices=Leave_type)
     start_date = models.DateField()
     end_date = models.DateField()
     number_of_leave_days = models.PositiveIntegerField()
@@ -49,3 +49,19 @@ class LeaveApplication(models.Model):
 
 
 
+class UserLeaves(models.Model):
+    leave_type = models.CharField(max_length=8,default=MEDICAL,choices=Leave_type)
+    number_of_leaves = models.PositiveIntegerField()
+    remaining_leaves = models.IntegerField()
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    year = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.user.email} -{self.remaining_leaves}/{self.number_of_leaves}"
+
+    def save(self, *args, **kwargs):
+        # Calculate the number of days between start_date and end_date
+        self.rem = (self.end_date - self.start_date).days
+        if self.number_of_leave_days < 1 or  not self.number_of_leave_days :
+            raise serializers.ValidationError("end date must be greater than start_date")
+        super().save(*args, **kwargs)

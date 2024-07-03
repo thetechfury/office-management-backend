@@ -8,8 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 
 class LeaveApplicationViewset(viewsets.ModelViewSet):
     serializer_class = LeaveApplicationSerializer
-    # authentication_classes = [SessionAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated,]
     http_method_names = ("get", "post", "patch", "delete")
 
     def get_queryset(self):
@@ -17,3 +17,8 @@ class LeaveApplicationViewset(viewsets.ModelViewSet):
             return LeaveApplication.objects.filter(user = self.request.user)
 
         return LeaveApplication.objects.all().order_by('-application_date')
+
+
+
+class LeavesViewset(viewsets.ModelViewSet):
+    pass
