@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
    'django_filters',
+    # for front end headers issue
+    "corsheaders",
+
     # Project Apps
      "users",
     "inventory",
@@ -56,6 +59,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+
 ]
 
 ROOT_URLCONF = "office.urls"
