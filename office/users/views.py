@@ -285,7 +285,7 @@ class LoginAPI(APIView):
                 login(request, user)
                 csrf_token = get_token(request)
                 session = request.session.session_key
-                response =  Response({"response": "You are successfully logged in.","csrftoken":csrf_token,"sessiid":session})
+                response =  Response({"response": "You are successfully logged in.","csrftoken":csrf_token,"sessionid":session})
                 return response
         else:
             return Response(serializer.errors, status=400)
