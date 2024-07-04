@@ -17,7 +17,7 @@ from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerialize
 from .permissions import MyPermission, TeamPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
 from .paginations import MyPagination
-from django.middleware.csrf import get_token
+from braces.views import CsrfExemptMixin
 
 
 class UserViewset(ModelViewSet):
@@ -266,11 +266,10 @@ class WorkingExperienceViewset(ModelViewSet):
         except:
             return []
 
-class LoginAPI(APIView):
+class LoginAPI(CsrfExemptMixin,APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
     http_method_names = ["post"]
-
 
     def post(self, request):
         email = request.data.get('email')
@@ -284,8 +283,10 @@ class LoginAPI(APIView):
             else:
                 login(request, user)
                 csrf_token = request.headers.get('Cookie').split()[0]
+                # x_csrf = request.headers.get('X-Csrftoken')
                 session = request.session.session_key
                 response =  Response({"response": "You are successfully logged in.","csrftoken":csrf_token,"sessionid":session})
+
                 return response
         else:
             return Response(serializer.errors, status=400)
