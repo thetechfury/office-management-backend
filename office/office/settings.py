@@ -28,6 +28,16 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000","http://localhost:8000"]
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'x-csrftoken',
+    'authorization',
+    'cookies',
+]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000","http://localhost:8000"
+]
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -49,6 +59,7 @@ INSTALLED_APPS = [
     "inventory",
     "attendence",
     "leave_management",
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
