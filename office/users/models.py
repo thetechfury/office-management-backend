@@ -61,7 +61,7 @@ class Profile(models.Model):
     date_of_birth = models.DateField()
     bio = models.TextField(max_length=500)
     phone = models.CharField(max_length=13)
-    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    user = models.OneToOneField(User,on_delete=models.CASCADE,related_name="profile")
     def __str__(self):
         return self.user.email
 

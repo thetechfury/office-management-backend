@@ -53,9 +53,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 class UserSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_image')
+
+    def get_image(self,obj):
+        return obj
     class Meta:
         model = User
-        fields = ['id', 'email','role','full_name']
+        fields = ['id', 'email','role','full_name','image']
         extra_kwargs = {
             'password': {'write_only': True},
             'is_superuser': {'read_only': True},
@@ -73,9 +77,17 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class AdminListUserSerializer(serializers.ModelSerializer):
+     image = serializers.SerializerMethodField('get_image')
+
+     def get_image(self, obj):
+         try:
+            image = Profile.objects.get(user = obj).profile_image.image
+            return image.path
+         except:
+            return None
      class Meta:
         model = User
-        fields = ['full_name','email','role','date_joined','is_active','id']
+        fields = ['full_name','email','role','date_joined','is_active','id','image']
 
      def to_representation(self, instance):
         representation = super().to_representation(instance)
