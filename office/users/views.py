@@ -25,7 +25,7 @@ from rest_framework.authtoken.models import Token
 class UserViewset(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    authentication_classes = [SessionAuthentication,BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated,MyPermission]
     # pagination_class = MyPagination
     http_method_names = ["get","post",'patch',"delete"]
@@ -282,13 +282,10 @@ class LoginAPI(APIView):
             user = authenticate(username=email, password=password)
             if not user:
                 raise ValidationError("Incorrect username or password.")
-            else:
-                if user:
-                    token, created = Token.objects.get_or_create(user=user)
-                    return Response({'token': token.key})
 
-        else:
-            return Response(serializer.errors, status=400)
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key})
+
 
 
 class LogoutAPI(APIView):
