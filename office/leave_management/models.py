@@ -62,12 +62,3 @@ class UserLeaves(models.Model):
     def __str__(self):
         return f"{self.user.email} -{self.remaining_leaves}/{self.number_of_leaves}"
 
-    def save(self, *args, **kwargs):
-        # Calculate the number of days between start_date and end_date
-        self.remaining_leaves = (self.end_date - self.start_date).days
-        if self.number_of_leave_days < 1 or  not self.number_of_leave_days :
-            raise serializers.ValidationError("end date must be greater than start_date")
-        elif self.number_of_leaves > self.remaining_leaves:
-            raise serializers.ValidationError(f"You'r remaining leaves related to  {self.leave_type} is {self.remaining_leaves}! you can't request higher than for that ")
-
-        super().save(*args, **kwargs)

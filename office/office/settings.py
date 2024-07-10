@@ -50,15 +50,14 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'rest_framework',
     'drf_yasg',
-   'django_filters',
+    'django_filters',
     # for front end headers issue
-    "corsheaders",
-
+     "corsheaders",
     # Project Apps
      "users",
-    "inventory",
-    "attendence",
-    "leave_management",
+     "inventory",
+     "attendence",
+     "leave_management",
     'rest_framework.authtoken',
 ]
 

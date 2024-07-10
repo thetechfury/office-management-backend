@@ -1,15 +1,16 @@
 from rest_framework import viewsets
-from .models import LeaveApplication
-from .serializers import LeaveApplicationSerializer
+from .models import LeaveApplication, UserLeaves
+from .serializers import LeaveApplicationSerializer,UserLeavesSerializer
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 # Create your views here.
 
 
 class LeaveApplicationViewset(viewsets.ModelViewSet):
     serializer_class = LeaveApplicationSerializer
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated,]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     http_method_names = ("get", "post", "patch", "delete")
 
     def get_queryset(self):
@@ -20,5 +21,13 @@ class LeaveApplicationViewset(viewsets.ModelViewSet):
 
 
 
-class LeavesViewset(viewsets.ModelViewSet):
-    pass
+class UserLeavesViewset(viewsets.ModelViewSet):
+    serializer_class = UserLeavesSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    http_method_names = ("get", "post", "patch", "delete")
+
+    def get_queryset(self):
+        if self.request.user.role != "admin":
+            return UserLeaves.objects.filter(user = self.request.user)
+        return UserLeaves.objects.all()

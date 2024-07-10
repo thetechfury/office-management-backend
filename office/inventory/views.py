@@ -2,7 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from .models import ItemCategory, Item, StockMovement,UserItemAssignment
 from .serializers import ItemCategorySerializer, ItemSerializer, StockMovementSerializer, UserItemAssignmentSerializer, \
     ItemPartialUpdateSerializer
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from .permissions import ItemPermission
@@ -18,7 +18,7 @@ class ItemCategoryViewset(ModelViewSet):
     queryset = ItemCategory.objects.all()
     serializer_class = ItemCategorySerializer
     http_method_names = ("get","post","patch","delete")
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated,ItemPermission]
 
 
@@ -36,7 +36,7 @@ class ItemViewset(ModelViewSet):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
     http_method_names = ("get", "post", "patch", "delete")
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated,ItemPermission]
 
     def get_serializer_class(self):
@@ -58,7 +58,7 @@ class StockMovementViewset(ModelViewSet):
     queryset = StockMovement.objects.all()
     serializer_class = StockMovementSerializer
     http_method_names = ("get", "post")
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, ItemPermission]
 
 
@@ -68,10 +68,9 @@ class StockMovementViewset(ModelViewSet):
     operation_description="Assigned Items"
 ))
 class UserItemAssignmentAPI(ListAPIView):
-
     queryset = UserItemAssignment.objects.all()
     serializer_class = UserItemAssignmentSerializer
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     http_method_names = ("get")

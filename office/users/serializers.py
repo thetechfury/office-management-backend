@@ -52,11 +52,47 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
+
+class MembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Membership
+        fields = "__all__"
+
+    def create(self, validated_data):
+        member = Membership.objects.create(**validated_data)
+        return member
+
+class TeamListSerializerWithoutMembers(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = '__all__'
+
+class TeamSerializer(serializers.ModelSerializer):
+    members = MembershipSerializer(many=True, read_only=True)
+    class Meta:
+        model = Team
+        fields = ['id','name','leader','members']
+        extra_kwargs = {
+            'id':{'read_only' : True}
+        }
+
+    def create(self, validated_data):
+        team = Team.objects.create(**validated_data)
+        leader = validated_data.pop('leader')
+        Membership.objects.create(user = leader,team = team)
+        return team
+
+
 class UserSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_image')
 
-    def get_image(self,obj):
-        return obj
+    def get_image(self, obj):
+        try:
+            image = Profile.objects.get(user=obj).profile_image.image
+            return image.path
+        except:
+            return False
     class Meta:
         model = User
         fields = ['id', 'email','role','full_name','image']
@@ -78,6 +114,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class AdminListUserSerializer(serializers.ModelSerializer):
      image = serializers.SerializerMethodField('get_image')
+     # teams = TeamSerializer(many=True, read_only=True)
+
 
      def get_image(self, obj):
          try:
@@ -103,29 +141,6 @@ class UpdatePasswordSerializer(serializers.Serializer):
 
 
 
-class MembershipSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Membership
-        fields = "__all__"
-
-    def create(self, validated_data):
-        member = Membership.objects.create(**validated_data)
-        return member
-
-class TeamSerializer(serializers.ModelSerializer):
-    members = MembershipSerializer(many=True, read_only=True)
-    class Meta:
-        model = Team
-        fields = ['id','name','leader','members']
-        extra_kwargs = {
-            'id':{'read_only' : True}
-        }
-
-    def create(self, validated_data):
-        team = Team.objects.create(**validated_data)
-        leader = validated_data.pop('leader')
-        Membership.objects.create(user = leader,team = team)
-        return team
 
 
 class EductionSerializer(serializers.ModelSerializer):

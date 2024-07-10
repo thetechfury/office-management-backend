@@ -10,6 +10,11 @@ class ItemCategorySerializer(serializers.ModelSerializer):
             'id': {'read_only': True}
         }
 
+class AssignedItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserItemAssignment
+        fields = '__all__'
+
 
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:

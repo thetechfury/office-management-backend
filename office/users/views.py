@@ -13,12 +13,14 @@ from .models import User, Team, Membership, Profile, ProfileImage, Skills, Worki
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
     ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer, AdminListUserSerializer, \
-    ProfileEducationSerializer,AddressSerializer
+    ProfileEducationSerializer, AddressSerializer, TeamListSerializerWithoutMembers
 from .permissions import MyPermission, TeamPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
 from .paginations import MyPagination
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
+from inventory.models import Item,UserItemAssignment
+from inventory.serializers import ItemSerializer,AssignedItemSerializer
 
 
 
@@ -56,9 +58,45 @@ class UserViewset(ModelViewSet):
         else:
             return User.objects.filter(id=user.id)
 
+    def is_queryset_not_null(self,queryset):
+        return bool(queryset)
+
+    def get_team_serialized_data(self,teams):
+        if teams:
+            return TeamListSerializerWithoutMembers(teams, many=True).data
+        return []
+
+    def get_assigned_items_serialized_data(self,assigned_items):
+        if assigned_items:
+            return AssignedItemSerializer(assigned_items, many=True).data
+        return []
+
+    def get_inventory_items_serialized_data(self,items):
+        if items:
+            return ItemSerializer(items, many=True).data
+        return []
+
+
+    def get_user_teams(self,user):
+        teams = Team.objects.filter(members__user=user)
+        return self.get_team_serialized_data(teams)
+
+    def get_user_assigned_items(self,user):
+        assigned_items= UserItemAssignment.objects.filter(user=user)
+        return self.get_assigned_items_serialized_data(assigned_items)
+
+    def get_all_teams(self):
+        teams = Team.objects.all()
+        return self.get_team_serialized_data(teams)
+
+    def get_all_inventory_items(self):
+        items = Item.objects.all()
+        return self.get_inventory_items_serialized_data(items)
+
+
     def list(self, request, *args, **kwargs):
         if request.user.role == "admin":
-            queryset = User.objects.all()
+            queryset = User.objects.exclude(email= request.user.email)
             user_role = self.request.query_params.get('role')
             user_active = self.request.query_params.get('active')
             if user_role and user_active:
@@ -72,27 +110,32 @@ class UserViewset(ModelViewSet):
             number_of_active_users = User.objects.filter(is_active = True).count()
             total_users = User.objects.count()
             total_teams = Team.objects.count()
-            active_user_percentage = self.get_active_user_percentage(total_users,number_of_active_users)
+            current_user = User.objects.get(email = request.user.email)
+            current_user_serilized_data = UserSerializer(current_user).data
+
             response = {
                 'number_of_active_users': number_of_active_users,
                 'total_users': total_users,
                 'total_teams': total_teams,
-                'active_user_percentage':active_user_percentage,
-                'users':serializer.data,
-
-
+                'user': current_user_serilized_data ,
+                'all_users':serializer.data,
+                'all_teams': self.get_all_teams(),
+                'user_teams': self.get_user_teams(request.user),
+                'inventory_items' : self.get_all_inventory_items(),
+                'user_items': self.get_user_assigned_items(request.user)
             }
             return Response(response)
         else:
-            queryset = User.objects.get(id = request.user.id)
-            serializer = UserSerializer(queryset)
+            user = User.objects.get(id = request.user.id)
+            user_serializer = UserSerializer(user)
+            response = {
+                'user' : user_serializer.data,
+                'user_teams' : self.get_user_teams(user),
+                'user_items' : self.get_user_assigned_items(user),
+            }
+            return Response(response)
 
 
-            return Response(serializer.data)
-
-    def get_active_user_percentage(self,total_user,active_user):
-        active_user_percentage = (active_user/total_user) * 100
-        return active_user_percentage
 
 
 
@@ -167,7 +210,7 @@ class MembershipViewset(ModelViewSet):
 
 class ProfileViewset(ModelViewSet):
     serializer_class = ProfileSerializer
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated,ProfilePermissions]
     http_method_names = ["get",'post','delete','patch']
 
@@ -175,22 +218,17 @@ class ProfileViewset(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == "admin":
-            profiles = Profile.objects.all()
-            return profiles
-        else:
-            profile = Profile.objects.filter(user = user)
-            return profile
+        profile = Profile.objects.filter(user = user)
+        return profile
 
 
 class ProfileImageViewset(ModelViewSet):
     queryset = ProfileImage.objects.all()
     serializer_class = ProfileImageSerializer
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
-        user = self.request.user
         try:
             profile = Profile.objects.get(user=self.request.user)
             profile_image = ProfileImage.objects.filter(profile=profile)
