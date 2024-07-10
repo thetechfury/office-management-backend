@@ -84,73 +84,6 @@ class TeamSerializer(serializers.ModelSerializer):
         return team
 
 
-class UserSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField('get_image')
-
-    def get_image(self, obj):
-        try:
-            image = Profile.objects.get(user=obj).profile_image.image
-            return image.path
-        except:
-            return False
-    class Meta:
-        model = User
-        fields = ['id', 'email','role','full_name','image']
-        extra_kwargs = {
-            'password': {'write_only': True},
-            'is_superuser': {'read_only': True},
-            'is_staff': {'read_only': True},
-            'role': {'read_only': True}
-        }
-
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
-    def update(self, instance, validated_data):
-        user = super().update(instance, validated_data)
-        user.save()
-        return user
-
-
-class AdminListUserSerializer(serializers.ModelSerializer):
-     image = serializers.SerializerMethodField('get_image')
-     # teams = TeamSerializer(many=True, read_only=True)
-
-
-     def get_image(self, obj):
-         try:
-            image = Profile.objects.get(user = obj).profile_image.image
-            return image.path
-         except:
-            return None
-     class Meta:
-        model = User
-        fields = ['full_name','email','role','date_joined','is_active','id','image']
-
-     def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['date_joined'] = instance.date_joined.strftime('%Y-%m-%d')
-        return representation
-
-
-class UpdatePasswordSerializer(serializers.Serializer):
-    previous_password = serializers.CharField(max_length=50)
-    new_password = serializers.CharField(max_length=50)
-    confirm_password = serializers.CharField(max_length=50)
-
-
-
-
-
-
-class EductionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Education
-        fields = "__all__"
-        extra_kwargs ={
-            'id':{'read_only':True},
-            'profile': {"write_only" : True}
-        }
 class ProfileSkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skills
@@ -175,6 +108,51 @@ class ProfileSkillSerializer(serializers.ModelSerializer):
             instance.description = validated_data.get('description')
             instance.save()
             return instance
+
+
+class ProfileIdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['id']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_image')
+
+
+    def get_image(self, obj):
+        try:
+            image = Profile.objects.get(user=obj).profile_image.image
+            return image.path
+        except:
+            return False
+    class Meta:
+        model = User
+        fields = ['id', 'email','role','full_name','image','profile']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_superuser': {'read_only': True},
+            'is_staff': {'read_only': True},
+            'role': {'read_only': True}
+        }
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+    def update(self, instance, validated_data):
+        user = super().update(instance, validated_data)
+        user.save()
+        return user
+
+
+class EductionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        fields = "__all__"
+        extra_kwargs ={
+            'id':{'read_only':True},
+            'profile': {"write_only" : True}
+        }
 
 
 class ProfileImageSerializer(serializers.ModelSerializer):
@@ -257,6 +235,46 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 
+
+
+
+class ProfileEducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        fields = '__all__'
+        read_only_fields = ('id', 'profile',)
+
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Education.objects.all(),
+                fields=['degree']
+            )
+        ]
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        try:
+            profile = Profile.objects.get(user=user)
+        except:
+            serializers.ValidationError("To add Education User must has profile")
+        profile_education = Education.objects.create(**validated_data,profile = profile)
+        return profile_education
+
+    def update(self, instance, validated_data):
+            instance.degree = validated_data.get('degree')
+            instance.total_marks = validated_data.get('total_marks')
+            instance.obtain_marks = validated_data.get('obtain_marks')
+            instance.start_date = validated_data.get('start_date')
+            instance.end_date = validated_data.get('end_date')
+            instance.institute = validated_data.get('institute')
+            instance.save()
+            return instance
+
+
+
+
+
 class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     educations =  EductionSerializer(many = True,read_only=True)
@@ -294,40 +312,39 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 
+class AdminListUserSerializer(serializers.ModelSerializer):
+     image = serializers.SerializerMethodField('get_image')
+     profile = ProfileIdSerializer(read_only=True)
+
+     # teams = TeamSerializer(many=True, read_only=True)
 
 
-class ProfileEducationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Education
-        fields = '__all__'
-        read_only_fields = ('id', 'profile',)
 
 
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Education.objects.all(),
-                fields=['degree']
-            )
-        ]
+     def get_image(self, obj):
+         try:
+            image = Profile.objects.get(user = obj).profile_image.image
+            return image.path
+         except:
+            return None
+     class Meta:
+        model = User
+        fields = ['full_name','email','role','date_joined','is_active','id','image','profile']
 
-    def create(self, validated_data):
-        user = self.context['request'].user
-        try:
-            profile = Profile.objects.get(user=user)
-        except:
-            serializers.ValidationError("To add Education User must has profile")
-        profile_education = Education.objects.create(**validated_data,profile = profile)
-        return profile_education
+     def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['date_joined'] = instance.date_joined.strftime('%Y-%m-%d')
+        return representation
 
-    def update(self, instance, validated_data):
-            instance.degree = validated_data.get('degree')
-            instance.total_marks = validated_data.get('total_marks')
-            instance.obtain_marks = validated_data.get('obtain_marks')
-            instance.start_date = validated_data.get('start_date')
-            instance.end_date = validated_data.get('end_date')
-            instance.institute = validated_data.get('institute')
-            instance.save()
-            return instance
+
+class UpdatePasswordSerializer(serializers.Serializer):
+    previous_password = serializers.CharField(max_length=50)
+    new_password = serializers.CharField(max_length=50)
+    confirm_password = serializers.CharField(max_length=50)
+
+
+
+
 
 
 

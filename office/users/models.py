@@ -5,8 +5,6 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
-
-
 class User(AbstractUser):
     ENDUSER = 'enduser'
     ADMIN = 'admin'
@@ -43,6 +41,7 @@ class Team(models.Model):
 
     def __str__(self):
         return str(self.name)
+
 
 class Membership(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)

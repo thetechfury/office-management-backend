@@ -56,15 +56,18 @@ class UserViewset(ModelViewSet):
         else:
             return User.objects.filter(id=user.id)
 
+
     def get_team_serialized_data(self,teams):
         if teams:
             return TeamListSerializerWithoutMembers(teams, many=True).data
         return []
 
+
     def get_assigned_items_serialized_data(self,assigned_items):
         if assigned_items:
             return AssignedItemSerializer(assigned_items, many=True).data
         return []
+
 
     def get_inventory_items_serialized_data(self,items):
         if items:
@@ -76,13 +79,16 @@ class UserViewset(ModelViewSet):
         teams = Team.objects.filter(members__user=user)
         return self.get_team_serialized_data(teams)
 
+
     def get_user_assigned_items(self,user):
         assigned_items= UserItemAssignment.objects.filter(user=user)
         return self.get_assigned_items_serialized_data(assigned_items)
 
+
     def get_all_teams(self):
         teams = Team.objects.all()
         return self.get_team_serialized_data(teams)
+
 
     def get_all_inventory_items(self):
         items = Item.objects.all()
@@ -130,6 +136,7 @@ class UserViewset(ModelViewSet):
             }
             return Response(response)
 
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -163,16 +170,15 @@ class UpdatePasswordAPI(UpdateAPIView):
 class TeamViewset(ModelViewSet):
     queryset = Team.objects.all()
     serializer_class =TeamSerializer
-    authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated,TeamPermission]
     pagination_class = MyPagination
     http_method_names = ["get",'post','patch','delete']
 
     def list(self, request, *args, **kwargs):
-        # if request.user.role == "admin":
-        #     queryset = Team.objects.all()
-        # else:
-        #     queryset = Team.objects.filter(leader=request.user)
+        if request.user.role == "admin":
+            queryset = Team.objects.all()
+        else:
+            queryset = Team.objects.filter(leader=request.user)
         queryset = Team.objects.filter(leader=request.user)
         serializer = TeamSerializer(queryset,many=True)
 
