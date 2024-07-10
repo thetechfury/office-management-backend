@@ -1,25 +1,13 @@
 from rest_framework.permissions import BasePermission
 from .models import Team,Membership
 from rest_framework.validators import ValidationError
-class MyPermission(BasePermission):
 
+class OnlyAdminUserCanMakePostRequest(BasePermission):
+    # Only for POST  Request permitted user is admin
     def has_permission(self, request, view):
-        if request.method == "POST" and request.user.role == "admin":
-            return True
-        elif request.method != "POST":
-            return True
-        else:
-            return False
-
-
-    def has_object_permission(self, request, view, obj):
-        if request.user.role == "admin":
-            return True
-        elif request.user == obj and request.method != "POST":
-            return True
-
-        else:
-            return ValidationError("Only Team Leader can request for data")
+        if request.method == "POST":
+            return request.user.role == "admin"
+        return True
 
 
 class TeamPermission(BasePermission):

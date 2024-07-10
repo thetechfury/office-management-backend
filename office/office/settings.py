@@ -150,7 +150,10 @@ AUTH_USER_MODEL = 'users.User'
 SWAGGER_SETTINGS = {
     'DEFAULT_INFO': 'office.swagger.swagger_info',
 }
-#
+
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+            'rest_framework.authentication.TokenAuthentication',
+        ],
 }

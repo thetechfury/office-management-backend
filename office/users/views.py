@@ -14,7 +14,7 @@ from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerialize
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
     ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer, AdminListUserSerializer, \
     ProfileEducationSerializer, AddressSerializer, TeamListSerializerWithoutMembers
-from .permissions import MyPermission, TeamPermission, ProfilePermissions
+from .permissions import OnlyAdminUserCanMakePostRequest, TeamPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
 from .paginations import MyPagination
 from rest_framework.authentication import TokenAuthentication
@@ -25,26 +25,24 @@ from inventory.serializers import ItemSerializer,AssignedItemSerializer
 
 
 class UserViewset(ModelViewSet):
-    queryset = User.objects.all()
     serializer_class = UserSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated,MyPermission]
-    # pagination_class = MyPagination
+    permission_classes = [IsAuthenticated,OnlyAdminUserCanMakePostRequest]
     http_method_names = ["get","post",'patch',"delete"]
-    filter_backends = [filters.SearchFilter]
-    # filterset_fields = ['is_active']
-    search_fields = ['users__role']
 
 
     def get_serializer_class(self):
-        if self.request.user.role == "admin" and self.action == 'list':
-            return AdminListUserSerializer
-        elif self.request.user.role == "admin" and self.action == 'create':
-            return AdminUserPostSerializer
-        elif self.request.user.role == "admin" and self.action in ['update','partial_update']:
-            return AdminUserUpdateSerializer
-        elif self.request.user.role != "admin" and self.action in ['update','partial_update'] :
+        role = self.request.user.role
+        action = self.action
+        if role == "admin":
+            if action == 'list':
+                return AdminListUserSerializer
+            elif action == 'create':
+                return AdminUserPostSerializer
+            elif action in ['update', 'partial_update']:
+                return AdminUserUpdateSerializer
+        elif action in ['update', 'partial_update']:
             return UserUpdateSerializer
+
         return UserSerializer
 
 
@@ -57,9 +55,6 @@ class UserViewset(ModelViewSet):
             return User.objects.all()
         else:
             return User.objects.filter(id=user.id)
-
-    def is_queryset_not_null(self,queryset):
-        return bool(queryset)
 
     def get_team_serialized_data(self,teams):
         if teams:
@@ -135,12 +130,10 @@ class UserViewset(ModelViewSet):
             }
             return Response(response)
 
-
-
-
-
-
-
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'status': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
 
 class UpdatePasswordAPI(UpdateAPIView):
