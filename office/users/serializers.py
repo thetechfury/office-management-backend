@@ -314,9 +314,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class AdminListUserSerializer(serializers.ModelSerializer):
      image = serializers.SerializerMethodField('get_image')
-     profile = ProfileIdSerializer(read_only=True)
-
-     # teams = TeamSerializer(many=True, read_only=True)
+     profile = ProfileIdSerializer(read_only=True,many=False)
 
 
 

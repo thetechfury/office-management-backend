@@ -25,7 +25,6 @@ from inventory.serializers import ItemSerializer,AssignedItemSerializer
 
 
 class UserViewset(ModelViewSet):
-    serializer_class = UserSerializer
     permission_classes = [IsAuthenticated,OnlyAdminUserCanMakePostRequest]
     http_method_names = ["get","post",'patch',"delete"]
 
@@ -189,7 +188,6 @@ class TeamViewset(ModelViewSet):
 class MembershipViewset(ModelViewSet):
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
-    authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
     pagination_class = MyPagination
     http_method_names = ["get",'post','delete']
