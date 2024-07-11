@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User,Team,Membership,Profile,Education
+from .models import User,Team,Membership,Profile,ProfileImage,Education
 from django.utils.translation import gettext_lazy as _
 
 admin.site.register(Team)
 admin.site.register(Membership)
 admin.site.register(Profile)
 admin.site.register(Education)
+admin.site.register(ProfileImage)
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
