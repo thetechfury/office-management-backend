@@ -189,19 +189,24 @@ class MembershipViewset(ModelViewSet):
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
     permission_classes = [IsAuthenticated]
-    pagination_class = MyPagination
     http_method_names = ["get",'post','delete']
 
 
 
 
     def get_queryset(self):
+        # admin user can access all members of all teams
+        if self.request.user.role == 'admin':
+            return Membership.objects.all()
+        # if team leader request
         teams= Team.objects.filter(leader = self.request.user)
         if teams:
-            members = Membership.objects.filter(team_id__in = teams).order_by('team')
+            members = Membership.objects.filter(team_id__in = teams)
             return members
+        # if member is not team leader but part of teams
+
         else:
-            return ValidationError("This user is not leader of any team")
+            return ValidationError("This user is not belongs  of any team")
 
 
 
@@ -215,6 +220,9 @@ class ProfileViewset(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if user == "admin":
+            return Profile.objects.all()
+
         profile = Profile.objects.filter(user = user)
         return profile
 

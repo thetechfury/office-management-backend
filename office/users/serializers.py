@@ -110,15 +110,22 @@ class ProfileSkillSerializer(serializers.ModelSerializer):
             return instance
 
 
-class ProfileIdSerializer(serializers.ModelSerializer):
+
+class UserSerializerForProfile(serializers.ModelSerializer):
     class Meta:
-        model = Profile
-        fields = ['id']
+        model = User
+        fields = ['full_name', 'email', 'role', 'date_joined', 'is_active', 'id','date_joined']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['date_joined'] = instance.date_joined.strftime('%Y-%m-%d')
+        return representation
+
+
 
 
 class UserSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_image')
-
 
     def get_image(self, obj):
         try:
@@ -126,15 +133,27 @@ class UserSerializer(serializers.ModelSerializer):
             return image.path
         except:
             return False
+
     class Meta:
         model = User
-        fields = ['id', 'email','role','full_name','image','profile']
+        fields = ['id', 'email','role','full_name','image','profile','date_joined']
         extra_kwargs = {
             'password': {'write_only': True},
             'is_superuser': {'read_only': True},
             'is_staff': {'read_only': True},
             'role': {'read_only': True}
         }
+
+
+
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['date_joined'] = instance.date_joined.strftime('%Y-%m-%d')
+        if self.context.get('remove_both_image_and_profile'):
+            representation.pop('image')
+            representation.pop('profile')
+        return representation
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
@@ -160,6 +179,12 @@ class ProfileImageSerializer(serializers.ModelSerializer):
         model = ProfileImage
         fields = '__all__'
         read_only_fields = ('id', 'profile',)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if self.context.get('remove_profile', False):
+            representation.pop('profile', None)
+        return representation
 
     def validate(self, data):
         user = self.context['request'].user
@@ -276,9 +301,9 @@ class ProfileEducationSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = serializers.SerializerMethodField('get_user_without_image_and_profile')
     educations =  EductionSerializer(many = True,read_only=True)
-    profile_image = ProfileImageSerializer(read_only = True)
+    profile_image =serializers.SerializerMethodField()
     skills = ProfileSkillSerializer(many = True,read_only = True)
     experience = WorkingExperienceSerializer(many = True,read_only = True)
     address = AddressSerializer(read_only=True)
@@ -287,7 +312,15 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['id','date_of_birth','bio','phone','user','educations','profile_image','skills','experience','address']
         read_only_fields = ('id','user')
 
+    def get_profile_image(self, obj):
+        context = self.context.copy()
+        context['remove_profile'] = True
+        return ProfileImageSerializer(obj.profile_image, context=context).data
 
+    def get_user_without_image_and_profile(self,obj):
+        context = self.context.copy()
+        context['remove_both_image_and_profile'] = True
+        return UserSerializer(obj.user,context=context).data
     def validate(self, data):
         user = self.context['request'].user
         if Profile.objects.filter(user=user).exists() and self.context['view'].action != 'update':
@@ -314,10 +347,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class AdminListUserSerializer(serializers.ModelSerializer):
      image = serializers.SerializerMethodField('get_image')
-     # profile = ProfileIdSerializer(read_only=True,many=False)
-
-
-
 
      def get_image(self, obj):
          try:
@@ -333,6 +362,8 @@ class AdminListUserSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['date_joined'] = instance.date_joined.strftime('%Y-%m-%d')
         return representation
+
+
 
 
 class UpdatePasswordSerializer(serializers.Serializer):
