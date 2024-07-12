@@ -67,8 +67,8 @@ class Profile(models.Model):
 
 class Education(models.Model):
     degree = models.CharField(max_length=50)
-    total_marks = models.DecimalField(decimal_places=2,max_digits=6)
-    obtain_marks = models.DecimalField(decimal_places=2,max_digits=6)
+    total_marks = models.CharField(max_length=5)
+    obtain_marks = models.CharField(max_length=5)
     start_date = models.DateField(auto_now=False)
     end_date = models.DateField(auto_now=False)
     institute = models.CharField(max_length=100)

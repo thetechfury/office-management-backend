@@ -96,6 +96,13 @@ class ProfileSkillSerializer(serializers.ModelSerializer):
             )
         ]
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if self.context.get('remove_profile'):
+            representation.pop('profile')
+        return representation
+
+
     def create(self, validated_data):
         user = self.context['request'].user
         profile = Profile.objects.get(user=user)
@@ -220,6 +227,12 @@ class WorkingExperienceSerializer(serializers.ModelSerializer):
             )
         ]
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if self.context.get('remove_profile', False):
+            representation.pop('profile', None)
+        return representation
+
     def create(self, validated_data):
         user = self.context['request'].user
         profile = Profile.objects.get(user=user)
@@ -242,6 +255,12 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = '__all__'
         read_only_fields = ('id','profile',)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if self.context.get('remove_profile', False):
+            representation.pop('profile', None)
+        return representation
 
 
     def create(self, validated_data):
@@ -304,9 +323,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField('get_user_without_image_and_profile')
     educations =  EductionSerializer(many = True,read_only=True)
     profile_image =serializers.SerializerMethodField()
-    skills = ProfileSkillSerializer(many = True,read_only = True)
-    experience = WorkingExperienceSerializer(many = True,read_only = True)
-    address = AddressSerializer(read_only=True)
+    skills = serializers.SerializerMethodField('get_skills_without_profile_id')
+    experience = serializers.SerializerMethodField()
+    address = serializers.SerializerMethodField()
     class Meta:
         model = Profile
         fields = ['id','date_of_birth','bio','phone','user','educations','profile_image','skills','experience','address']
@@ -317,10 +336,30 @@ class ProfileSerializer(serializers.ModelSerializer):
         context['remove_profile'] = True
         return ProfileImageSerializer(obj.profile_image, context=context).data
 
+    def get_skills_without_profile_id(self,obj):
+        context = self.context.copy()
+        context['remove_profile'] = True
+        return ProfileSkillSerializer(obj.skills, many=True, context=context).data
+
+    def get_experience(self,obj):
+        context = self.context.copy()
+        context['remove_profile'] = True
+        return WorkingExperienceSerializer(obj.experience, many=True, context=context).data
+
+    def get_address(self,obj):
+        context = self.context.copy()
+        context['remove_profile'] = True
+        return AddressSerializer(obj.address,read_only=True, context=context).data
+
     def get_user_without_image_and_profile(self,obj):
         context = self.context.copy()
         context['remove_both_image_and_profile'] = True
         return UserSerializer(obj.user,context=context).data
+
+
+
+
+
     def validate(self, data):
         user = self.context['request'].user
         if Profile.objects.filter(user=user).exists() and self.context['view'].action != 'update':

@@ -1,7 +1,6 @@
 from rest_framework import viewsets
 from .models import LeaveApplication, UserLeaves
 from .serializers import LeaveApplicationSerializer,UserLeavesSerializer
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 # Create your views here.
