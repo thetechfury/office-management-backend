@@ -230,6 +230,7 @@ class ProfileViewset(ModelViewSet):
 
 
 
+
     def get_queryset(self):
         user = self.request.user
         if user == "admin":
