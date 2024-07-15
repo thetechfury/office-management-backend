@@ -1,5 +1,4 @@
 from rest_framework.permissions import BasePermission
-from .models import Team,Membership
 from rest_framework.validators import ValidationError
 
 class OnlyAdminUserCanMakePostRequest(BasePermission):
@@ -9,6 +8,12 @@ class OnlyAdminUserCanMakePostRequest(BasePermission):
             return request.user.role == "admin"
         return True
 
+class OnlyAdminUserAndInventoryManagerCanMakePostRequest(BasePermission):
+    # Only for POST  Request permitted user is admin
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            return request.user.role == "admin" or request.user.role == "inventory_manager"
+        return True
 
 class TeamPermission(BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -50,5 +55,13 @@ class ProfilePermissions(BasePermission):
         if request.user == obj.user or request.user.role == "admin":
             return True
 
+        else:
+            return False
+
+
+class ItemPermission(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.role == 'admin' or request.user.role =='inventory_manager':
+            return True
         else:
             return False

@@ -15,6 +15,11 @@ class AssignedItemSerializer(serializers.ModelSerializer):
         model = UserItemAssignment
         fields = '__all__'
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['assigned_at'] = instance.assigned_at.strftime('%d %b %Y %I%p')
+        return representation
+
 
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:

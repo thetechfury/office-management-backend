@@ -125,7 +125,7 @@ class UserSerializerForProfile(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['date_joined'] = instance.date_joined.strftime('%Y-%m-%d')
+        representation['date_joined'] = instance.date_joined.strftime('%d %b %Y')
         return representation
 
 
@@ -152,11 +152,9 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
 
-
-
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['date_joined'] = instance.date_joined.strftime('%Y-%m-%d')
+        representation['date_joined'] = instance.date_joined.strftime('%d %b %Y')
         if self.context.get('remove_both_image_and_profile'):
             representation.pop('image')
             representation.pop('profile')
@@ -179,6 +177,14 @@ class EductionSerializer(serializers.ModelSerializer):
             'id':{'read_only':True},
             'profile': {"write_only" : True}
         }
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['start_date'] = instance.start_date.strftime('%d %b %Y')
+        representation['end_date'] = instance.end_date.strftime('%d %b %Y')
+        return representation
+
+
 
 
 class ProfileImageSerializer(serializers.ModelSerializer):
@@ -229,6 +235,8 @@ class WorkingExperienceSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        representation['joining_date'] = instance.joining_date.strftime('%d %b %Y')
+        representation['end_date'] = instance.end_date.strftime('%d %b %Y')
         if self.context.get('remove_profile', False):
             representation.pop('profile', None)
         return representation
@@ -296,6 +304,14 @@ class ProfileEducationSerializer(serializers.ModelSerializer):
             )
         ]
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['start_date'] = instance.start_date.strftime('%d %b %Y')
+        representation['end_date'] = instance.end_date.strftime('%d %b %Y')
+        return representation
+
+
+
     def create(self, validated_data):
         user = self.context['request'].user
         try:
@@ -330,6 +346,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['id','date_of_birth','bio','phone','user','educations','profile_image','skills','experience','address']
         read_only_fields = ('id','user')
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['date_of_birth'] = instance.date_of_birth.strftime('%d %b %Y')
+        return representation
 
     def get_profile_image(self, obj):
         context = self.context.copy()
@@ -399,7 +420,7 @@ class AdminListUserSerializer(serializers.ModelSerializer):
 
      def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['date_joined'] = instance.date_joined.strftime('%Y-%m-%d')
+        representation['date_joined'] = instance.date_joined.strftime('%d %b %Y')
         return representation
 
 

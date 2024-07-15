@@ -2,10 +2,10 @@ from rest_framework.viewsets import ModelViewSet
 from .models import ItemCategory, Item, StockMovement,UserItemAssignment
 from .serializers import ItemCategorySerializer, ItemSerializer, StockMovementSerializer, UserItemAssignmentSerializer, \
     ItemPartialUpdateSerializer
-from rest_framework.authentication import BasicAuthentication, TokenAuthentication
+from rest_framework.authentication import  TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
-from .permissions import ItemPermission
+from utils.permissions import OnlyAdminUserAndInventoryManagerCanMakePostRequest
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from django.utils.decorators import method_decorator
@@ -19,7 +19,7 @@ class ItemCategoryViewset(ModelViewSet):
     serializer_class = ItemCategorySerializer
     http_method_names = ("get","post","patch","delete")
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated,ItemPermission]
+    permission_classes = [IsAuthenticated,OnlyAdminUserAndInventoryManagerCanMakePostRequest]
 
 
 
@@ -37,7 +37,7 @@ class ItemViewset(ModelViewSet):
     serializer_class = ItemSerializer
     http_method_names = ("get", "post", "patch", "delete")
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated,ItemPermission]
+    permission_classes = [IsAuthenticated,OnlyAdminUserAndInventoryManagerCanMakePostRequest]
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
@@ -59,7 +59,7 @@ class StockMovementViewset(ModelViewSet):
     serializer_class = StockMovementSerializer
     http_method_names = ("get", "post")
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, ItemPermission]
+    permission_classes = [IsAuthenticated]
 
 
 

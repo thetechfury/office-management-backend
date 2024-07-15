@@ -14,7 +14,7 @@ from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerialize
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
     ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer, AdminListUserSerializer, \
     ProfileEducationSerializer, AddressSerializer, TeamListSerializerWithoutMembers
-from .permissions import OnlyAdminUserCanMakePostRequest, TeamPermission, ProfilePermissions
+from utils.permissions import OnlyAdminUserCanMakePostRequest, TeamPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
 from .paginations import MyPagination
 from rest_framework.authentication import TokenAuthentication
@@ -83,6 +83,10 @@ class UserViewset(ModelViewSet):
         assigned_items= UserItemAssignment.objects.filter(user=user)
         return self.get_assigned_items_serialized_data(assigned_items)
 
+    def get_all_assigned_items(self):
+        all_assigned_items = UserItemAssignment.objects.all()
+        return self.get_assigned_items_serialized_data(all_assigned_items)
+
 
     def get_all_teams(self):
         teams = Team.objects.all()
@@ -122,6 +126,7 @@ class UserViewset(ModelViewSet):
                 'all_teams': self.get_all_teams(),
                 'user_teams': self.get_user_teams(request.user),
                 'inventory_items' : self.get_all_inventory_items(),
+                'all_assigned_items':self.get_all_assigned_items(),
                 'user_items': self.get_user_assigned_items(request.user)
             }
             return Response(response)
