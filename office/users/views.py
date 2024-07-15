@@ -97,6 +97,21 @@ class UserViewset(ModelViewSet):
         items = Item.objects.all()
         return self.get_inventory_items_serialized_data(items)
 
+    def get_non_admin_response(self):
+        user = User.objects.get(id=self.request.user.id)
+        user_serializer = UserSerializer(user)
+        response = {
+            'user': user_serializer.data,
+            'user_teams': self.get_user_teams(user),
+            'user_items': self.get_user_assigned_items(user),
+        }
+        if self.request.user.role == "inventory_manager":
+            response['all-items'] = self.get_all_inventory_items(),
+            response['all_assigned_items'] = self.get_all_assigned_items(),
+            return response
+        else:
+            return response
+
 
     def list(self, request, *args, **kwargs):
         if request.user.role == "admin":
@@ -131,15 +146,7 @@ class UserViewset(ModelViewSet):
             }
             return Response(response)
         else:
-            user = User.objects.get(id = request.user.id)
-            user_serializer = UserSerializer(user)
-            response = {
-                'user' : user_serializer.data,
-                'user_teams' : self.get_user_teams(user),
-                'user_items' : self.get_user_assigned_items(user),
-            }
-            return Response(response)
-
+            return Response(self.get_non_admin_response())
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
