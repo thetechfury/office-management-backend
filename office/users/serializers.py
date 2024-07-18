@@ -132,7 +132,7 @@ class UserSerializerForProfile(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField('get_image')
+    # image = serializers.SerializerMethodField('get_image')
 
     def get_image(self, obj):
         try:
@@ -143,7 +143,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email','role','full_name','image','profile','date_joined']
+        fields = ['id', 'email','role','full_name','date_joined']
         extra_kwargs = {
             'password': {'write_only': True},
             'is_superuser': {'read_only': True},
@@ -406,7 +406,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class AdminListUserSerializer(serializers.ModelSerializer):
-     image = serializers.SerializerMethodField('get_image')
+     # image = serializers.SerializerMethodField('get_image')
 
      def get_image(self, obj):
          try:
@@ -416,7 +416,7 @@ class AdminListUserSerializer(serializers.ModelSerializer):
             return None
      class Meta:
         model = User
-        fields = ['full_name','email','role','date_joined','is_active','id','image','profile']
+        fields = ['full_name','email','role','date_joined','is_active','id']
 
      def to_representation(self, instance):
         representation = super().to_representation(instance)

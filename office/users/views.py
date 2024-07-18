@@ -16,7 +16,7 @@ from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerialize
     ProfileEducationSerializer, AddressSerializer, TeamListSerializerWithoutMembers
 from utils.permissions import OnlyAdminUserCanMakePostRequest, TeamPermission, ProfilePermissions
 from rest_framework.validators import ValidationError
-from .paginations import MyPagination
+from utils.paginations import DefaultPagePagination,MyPagination
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from inventory.models import Item,UserItemAssignment
@@ -27,6 +27,8 @@ from inventory.serializers import ItemSerializer,AssignedItemSerializer
 class UserViewset(ModelViewSet):
     permission_classes = [IsAuthenticated,OnlyAdminUserCanMakePostRequest]
     http_method_names = ["get","post",'patch',"delete"]
+    queryset = User.objects.all()
+    pagination_class = DefaultPagePagination
 
 
     def get_serializer_class(self):
@@ -47,106 +49,33 @@ class UserViewset(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        user_role = self.request.query_params.get('role')
         if self.request.user.role == 'admin':
-            if user_role:
-                return User.objects.filter(role = user_role)
-            return User.objects.all()
+            return User.objects.exclude(email = self.request.user.email)
         else:
             return User.objects.filter(id=user.id)
 
 
-    def get_team_serialized_data(self,teams):
-        if teams:
-            return TeamListSerializerWithoutMembers(teams, many=True).data
-        return []
-
-
-    def get_assigned_items_serialized_data(self,assigned_items):
-        if assigned_items:
-            return AssignedItemSerializer(assigned_items, many=True).data
-        return []
-
-
-    def get_inventory_items_serialized_data(self,items):
-        if items:
-            return ItemSerializer(items, many=True).data
-        return []
-
-
-    def get_user_teams(self,user):
-        teams = Team.objects.filter(members__user=user)
-        return self.get_team_serialized_data(teams)
-
-
-    def get_user_assigned_items(self,user):
-        assigned_items= UserItemAssignment.objects.filter(user=user)
-        return self.get_assigned_items_serialized_data(assigned_items)
-
-    def get_all_assigned_items(self):
-        all_assigned_items = UserItemAssignment.objects.all()
-        return self.get_assigned_items_serialized_data(all_assigned_items)
-
-
-    def get_all_teams(self):
-        teams = Team.objects.all()
-        return self.get_team_serialized_data(teams)
-
-
-    def get_all_inventory_items(self):
-        items = Item.objects.all()
-        return self.get_inventory_items_serialized_data(items)
-
-    def get_non_admin_response(self):
-        user = User.objects.get(id=self.request.user.id)
-        user_serializer = UserSerializer(user)
-        response = {
-            'user': user_serializer.data,
-            'user_teams': self.get_user_teams(user),
-            'user_items': self.get_user_assigned_items(user),
-        }
-        if self.request.user.role == "inventory_manager":
-            response['all-items'] = self.get_all_inventory_items(),
-            response['all_assigned_items'] = self.get_all_assigned_items(),
-            return response
-        else:
-            return response
-
 
     def list(self, request, *args, **kwargs):
-        if request.user.role == "admin":
-            queryset = User.objects.exclude(email= request.user.email)
-            user_role = self.request.query_params.get('role')
-            user_active = self.request.query_params.get('active')
-            if user_role and user_active:
-                queryset = User.objects.filter(role=user_role,is_active = user_active)
-            elif user_role:
-                queryset = User.objects.filter(role=user_role)
-            elif user_active:
-                queryset = User.objects.filter(is_active=user_active)
+        queryset = self.filter_queryset(self.get_queryset())
+        # convert queryset in paginated querset
+        page = self.paginate_queryset(queryset)
 
-            serializer = AdminListUserSerializer(queryset,many=True)
-            number_of_active_users = User.objects.filter(is_active = True).count()
-            total_users = User.objects.count()
-            total_teams = Team.objects.count()
-            current_user = User.objects.get(email = request.user.email)
-            current_user_serilized_data = UserSerializer(current_user).data
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            paginated_response = self.get_paginated_response(serializer.data)
+            if request.user.role == 'admin':
+                total_users = queryset.count()
+                current_user = User.objects.get(email = request.user.email)
+                paginated_response.data['total_users'] = total_users
+                paginated_response.data['current_user'] = UserSerializer(current_user).data
 
-            response = {
-                'number_of_active_users': number_of_active_users,
-                'total_users': total_users,
-                'total_teams': total_teams,
-                'user': current_user_serilized_data ,
-                'all_users':serializer.data,
-                'all_teams': self.get_all_teams(),
-                'user_teams': self.get_user_teams(request.user),
-                'inventory_items' : self.get_all_inventory_items(),
-                'all_assigned_items':self.get_all_assigned_items(),
-                'user_items': self.get_user_assigned_items(request.user)
-            }
-            return Response(response)
-        else:
-            return Response(self.get_non_admin_response())
+            return paginated_response
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
