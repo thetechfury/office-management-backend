@@ -336,16 +336,17 @@ class ProfileEducationSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = serializers.SerializerMethodField('get_user_without_image_and_profile')
-    educations =  EductionSerializer(many = True,read_only=True)
-    profile_image =serializers.SerializerMethodField()
-    skills = serializers.SerializerMethodField('get_skills_without_profile_id')
-    experience = serializers.SerializerMethodField()
-    address = serializers.SerializerMethodField()
+    # user = serializers.SerializerMethodField('get_user_without_image_and_profile')
+    # educations =  EductionSerializer(many = True,read_only=True)
+    # profile_image =serializers.SerializerMethodField()
+    # skills = serializers.SerializerMethodField('get_skills_without_profile_id')
+    # experience = serializers.SerializerMethodField()
+    # address = serializers.SerializerMethodField()
     class Meta:
         model = Profile
-        fields = ['id','date_of_birth','bio','phone','user','educations','profile_image','skills','experience','address']
-        read_only_fields = ('id','user')
+        # fields = ['id','date_of_birth','bio','phone','user','educations','profile_image','skills','experience','address']
+        fields = ['id','date_of_birth','bio','phone',]
+        read_only_fields = ('id',)
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

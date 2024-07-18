@@ -29,6 +29,7 @@ class UserViewset(ModelViewSet):
     http_method_names = ["get","post",'patch',"delete"]
     queryset = User.objects.all()
     pagination_class = DefaultPagePagination
+    filterset_fields = ['email','role']
 
 
     def get_serializer_class(self):
@@ -162,7 +163,7 @@ class ProfileViewset(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user == "admin":
+        if user.role == "admin":
             return Profile.objects.all()
 
         profile = Profile.objects.filter(user = user)
