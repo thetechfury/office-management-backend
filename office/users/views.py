@@ -67,9 +67,11 @@ class UserViewset(ModelViewSet):
             paginated_response = self.get_paginated_response(serializer.data)
             if request.user.role == 'admin':
                 total_users = queryset.count()
+                number_of_active_user = User.objects.filter(is_active = True).count()
                 current_user = User.objects.get(email = request.user.email)
+                paginated_response.data['user'] = UserSerializer(current_user).data
                 paginated_response.data['total_users'] = total_users
-                paginated_response.data['current_user'] = UserSerializer(current_user).data
+                paginated_response.data['number_of_active_users'] = number_of_active_user
 
             return paginated_response
 
