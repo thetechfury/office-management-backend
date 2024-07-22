@@ -1,9 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from .models import User, Team, Membership, Profile, Education, ProfileImage, Skills, WorkingExperience,Address
-from rest_framework.validators import ValidationError
-
-
 
 class AdminUserPostSerializer(serializers.ModelSerializer):
     class Meta:
@@ -117,6 +114,13 @@ class ProfileSkillSerializer(serializers.ModelSerializer):
             return instance
 
 
+class UserProfileIdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('id',)
+
+
+
 
 class UserSerializerForProfile(serializers.ModelSerializer):
     class Meta:
@@ -132,8 +136,7 @@ class UserSerializerForProfile(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    # image = serializers.SerializerMethodField('get_image')
-
+    profile = UserProfileIdSerializer(read_only=True,many=False)
     def get_image(self, obj):
         try:
             image = Profile.objects.get(user=obj).profile_image.image
@@ -143,7 +146,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email','role','full_name','date_joined']
+        fields = ['id', 'email','role','full_name','date_joined','profile']
         extra_kwargs = {
             'password': {'write_only': True},
             'is_superuser': {'read_only': True},
@@ -155,9 +158,6 @@ class UserSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['date_joined'] = instance.date_joined.strftime('%d %b %Y')
-        if self.context.get('remove_both_image_and_profile'):
-            representation.pop('image')
-            representation.pop('profile')
         return representation
 
     def create(self, validated_data):
@@ -193,11 +193,7 @@ class ProfileImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('id', 'profile',)
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        if self.context.get('remove_profile', False):
-            representation.pop('profile', None)
-        return representation
+
 
     def validate(self, data):
         user = self.context['request'].user
@@ -237,8 +233,6 @@ class WorkingExperienceSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['joining_date'] = instance.joining_date.strftime('%d %b %Y')
         representation['end_date'] = instance.end_date.strftime('%d %b %Y')
-        if self.context.get('remove_profile', False):
-            representation.pop('profile', None)
         return representation
 
     def create(self, validated_data):
@@ -264,11 +258,6 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('id','profile',)
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        if self.context.get('remove_profile', False):
-            representation.pop('profile', None)
-        return representation
 
 
     def create(self, validated_data):
@@ -336,15 +325,8 @@ class ProfileEducationSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    # user = serializers.SerializerMethodField('get_user_without_image_and_profile')
-    # educations =  EductionSerializer(many = True,read_only=True)
-    # profile_image =serializers.SerializerMethodField()
-    # skills = serializers.SerializerMethodField('get_skills_without_profile_id')
-    # experience = serializers.SerializerMethodField()
-    # address = serializers.SerializerMethodField()
     class Meta:
         model = Profile
-        # fields = ['id','date_of_birth','bio','phone','user','educations','profile_image','skills','experience','address']
         fields = ['id','date_of_birth','bio','phone',]
         read_only_fields = ('id',)
 
@@ -352,35 +334,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['date_of_birth'] = instance.date_of_birth.strftime('%d %b %Y')
         return representation
-
-    def get_profile_image(self, obj):
-        context = self.context.copy()
-        context['remove_profile'] = True
-        return ProfileImageSerializer(obj.profile_image, context=context).data
-
-    def get_skills_without_profile_id(self,obj):
-        context = self.context.copy()
-        context['remove_profile'] = True
-        return ProfileSkillSerializer(obj.skills, many=True, context=context).data
-
-    def get_experience(self,obj):
-        context = self.context.copy()
-        context['remove_profile'] = True
-        return WorkingExperienceSerializer(obj.experience, many=True, context=context).data
-
-    def get_address(self,obj):
-        context = self.context.copy()
-        context['remove_profile'] = True
-        return AddressSerializer(obj.address,read_only=True, context=context).data
-
-    def get_user_without_image_and_profile(self,obj):
-        context = self.context.copy()
-        context['remove_both_image_and_profile'] = True
-        return UserSerializer(obj.user,context=context).data
-
-
-
-
 
     def validate(self, data):
         user = self.context['request'].user
@@ -407,17 +360,10 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class AdminListUserSerializer(serializers.ModelSerializer):
-     # image = serializers.SerializerMethodField('get_image')
-
-     def get_image(self, obj):
-         try:
-            image = Profile.objects.get(user = obj).profile_image.image
-            return image.path
-         except:
-            return None
+     profile = UserProfileIdSerializer(read_only=True)
      class Meta:
         model = User
-        fields = ['full_name','email','role','date_joined','is_active','id']
+        fields = ['full_name','email','role','date_joined','is_active','id','profile']
 
      def to_representation(self, instance):
         representation = super().to_representation(instance)

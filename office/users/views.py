@@ -32,6 +32,8 @@ class UserViewset(ModelViewSet):
     filterset_fields = ['email','role']
 
 
+
+
     def get_serializer_class(self):
         role = self.request.user.role
         action = self.action
@@ -56,10 +58,9 @@ class UserViewset(ModelViewSet):
             return User.objects.filter(id=user.id)
 
 
-
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        # convert queryset in paginated querset
+        # convert queryset in paginated queryset
         page = self.paginate_queryset(queryset)
 
         if page is not None:
@@ -135,9 +136,6 @@ class MembershipViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ["get",'post','delete']
 
-
-
-
     def get_queryset(self):
         # admin user can access all members of all teams
         if self.request.user.role == 'admin':
@@ -159,6 +157,7 @@ class ProfileViewset(ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated,ProfilePermissions]
     http_method_names = ["get",'post','delete','patch']
+    pagination_class = DefaultPagePagination
 
 
 
@@ -166,10 +165,27 @@ class ProfileViewset(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.role == "admin":
-            return Profile.objects.all()
+            return Profile.objects.all().exclude(user = user)
 
         profile = Profile.objects.filter(user = user)
         return profile
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        # convert queryset in paginated queryset
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            paginated_response = self.get_paginated_response(serializer.data)
+            if request.user.role == 'admin':
+                admin_user_profile = Profile.objects.get(user = request.user)
+                paginated_response.data['user_profile'] = ProfileSerializer(admin_user_profile).data
+
+            return paginated_response
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class ProfileImageViewset(ModelViewSet):
