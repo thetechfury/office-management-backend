@@ -136,7 +136,7 @@ class UserSerializerForProfile(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = UserProfileIdSerializer(read_only=True,many=False)
+    image = serializers.SerializerMethodField()
     def get_image(self, obj):
         try:
             image = Profile.objects.get(user=obj).profile_image.image
@@ -146,7 +146,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email','role','full_name','date_joined','profile']
+        fields = ['id', 'email','role','full_name','date_joined','image']
         extra_kwargs = {
             'password': {'write_only': True},
             'is_superuser': {'read_only': True},
@@ -220,8 +220,8 @@ class ProfileImageSerializer(serializers.ModelSerializer):
 class WorkingExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkingExperience
-        fields = '__all__'
-        read_only_fields = ('id','profile',)
+        exclude = ['profile']
+        read_only_fields = ('id',)
         validators = [
             UniqueTogetherValidator(
                 queryset=WorkingExperience.objects.all(),
@@ -255,8 +255,8 @@ class WorkingExperienceSerializer(serializers.ModelSerializer):
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = '__all__'
-        read_only_fields = ('id','profile',)
+        exclude = ['profile']
+        read_only_fields = ('id',)
 
 
 
@@ -282,8 +282,8 @@ class AddressSerializer(serializers.ModelSerializer):
 class ProfileEducationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Education
-        fields = '__all__'
-        read_only_fields = ('id', 'profile',)
+        exclude = ['profile']
+        read_only_fields = ('id',)
 
 
         validators = [
@@ -365,10 +365,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class AdminListUserSerializer(serializers.ModelSerializer):
-     profile = UserProfileIdSerializer(read_only=True)
      class Meta:
         model = User
-        fields = ['full_name','email','role','date_joined','is_active','id','profile']
+        fields = ['full_name','email','role','date_joined','is_active','id']
 
      def to_representation(self, instance):
         representation = super().to_representation(instance)

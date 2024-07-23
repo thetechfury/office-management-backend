@@ -23,7 +23,6 @@ from inventory.models import Item,UserItemAssignment
 from inventory.serializers import ItemSerializer,AssignedItemSerializer
 
 
-
 class UserViewset(ModelViewSet):
     permission_classes = [IsAuthenticated,OnlyAdminUserCanMakePostRequest]
     http_method_names = ["get","post",'patch',"delete"]
@@ -85,6 +84,41 @@ class UserViewset(ModelViewSet):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({'status': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class GetUserProfile(APIView):
+    def get(self,request,user_id):
+        try:
+            profile = Profile.objects.get(user_id = user_id)
+            serializer = ProfileSerializer(profile)
+            return Response(serializer.data)
+        except:
+            return Response({'message':"This user has no Profile"})
+
+class GetUserAddress(APIView):
+    def get(self,request,user_id):
+        try:
+            profile = Profile.objects.get(user_id = user_id)
+            address = Address.objects.get(profile = profile)
+            serializer = AddressSerializer(address)
+            return Response(serializer.data)
+        except:
+            return Response({'message':"This user has no Address"})
+
+class GetUserExperience(APIView):
+    def get(self,request,user_id):
+            profile = Profile.objects.get(user_id = user_id)
+            experience = WorkingExperience.objects.filter(profile = profile)
+            serializer = WorkingExperienceSerializer(experience,many=True)
+            return Response(serializer.data)
+
+
+class GetUserEducation(APIView):
+    def get(self,request,user_id):
+            profile = Profile.objects.get(user_id = user_id)
+            education = Education.objects.filter(profile = profile)
+            serializer = ProfileEducationSerializer(education,many=True)
+            return Response(serializer.data)
 
 
 class UpdatePasswordAPI(UpdateAPIView):
@@ -271,6 +305,10 @@ class WorkingExperienceViewset(ModelViewSet):
             return working_experience
         except:
             return []
+
+
+class GetWorkExperience(APIView):
+    pass
 
 class LoginAPI(APIView):
     permission_classes = [AllowAny]

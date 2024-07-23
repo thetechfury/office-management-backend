@@ -80,7 +80,7 @@ urlpatterns = [
     path("shift-break/",include(break_router.urls)),
     path("user-shift/",include(user_shift_router.urls)),
     path("",include('users.urls')),
-    path("attendece/",include('attendence.urls')),
+    path("attendence/",include('attendence.urls')),
     path("leave/",include('leave_management.urls')),
     path("inventory/",include('inventory.urls')),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
