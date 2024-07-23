@@ -239,7 +239,6 @@ class ProfileImageViewset(ModelViewSet):
 class ProfileEducationViewset(ModelViewSet):
     queryset = Education.objects.all()
     serializer_class = ProfileEducationSerializer
-    authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
@@ -260,7 +259,6 @@ class ProfileEducationViewset(ModelViewSet):
 class ProfileAddressViewset(ModelViewSet):
     queryset = Address.objects.all()
     serializer_class = AddressSerializer
-    authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
@@ -279,7 +277,6 @@ class ProfileAddressViewset(ModelViewSet):
 class ProfileSkillViewset(ModelViewSet):
     queryset = Skills.objects.all()
     serializer_class = ProfileSkillSerializer
-    authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","patch")
     def get_queryset(self):
@@ -294,7 +291,6 @@ class ProfileSkillViewset(ModelViewSet):
 class WorkingExperienceViewset(ModelViewSet):
     queryset = WorkingExperience.objects.all()
     serializer_class = WorkingExperienceSerializer
-    authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","patch","delete")
     def get_queryset(self):
