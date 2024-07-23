@@ -325,9 +325,14 @@ class ProfileEducationSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_image',read_only=True)
+
+    def get_image(self,obj):
+        return obj.profile_image.image.url
+
     class Meta:
         model = Profile
-        fields = ['id','date_of_birth','bio','phone',]
+        fields = ['id','date_of_birth','bio','phone','image']
         read_only_fields = ('id',)
 
     def to_representation(self, instance):
