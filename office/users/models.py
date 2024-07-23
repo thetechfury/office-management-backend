@@ -131,5 +131,5 @@ class Address(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='address')
 
     def __str__(self):
-        return str(f'{self.name} - {self.level}')
+        return str(f'{self.country} - {self.city}')
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User,Team,Membership,Profile,ProfileImage,Education
+from .models import User,Team,Membership,Profile,ProfileImage,Education,Address,Skills,WorkingExperience
 from django.utils.translation import gettext_lazy as _
 
 admin.site.register(Team)
@@ -8,6 +8,10 @@ admin.site.register(Membership)
 admin.site.register(Profile)
 admin.site.register(Education)
 admin.site.register(ProfileImage)
+admin.site.register(Address)
+admin.site.register(Skills)
+admin.site.register(WorkingExperience)
+
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
