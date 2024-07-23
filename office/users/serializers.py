@@ -328,7 +328,10 @@ class ProfileSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_image',read_only=True)
 
     def get_image(self,obj):
-        return obj.profile_image.image.url
+        try:
+         return obj.profile_image.image.url
+        except:
+            return None
 
     class Meta:
         model = Profile
