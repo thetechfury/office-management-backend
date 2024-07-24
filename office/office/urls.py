@@ -33,7 +33,6 @@ schema_view = get_schema_view(
 )
 
 # routers
-user_router = DefaultRouter()
 team_router = DefaultRouter()
 membership_router = DefaultRouter()
 profile_router = DefaultRouter()
@@ -47,7 +46,6 @@ inventory_item_router = DefaultRouter()
 inventory_stock_movment_router = DefaultRouter()
 break_router = DefaultRouter()
 user_shift_router = DefaultRouter()
-user_router.register('', views.UserViewset, basename='user')
 team_router.register('',views.TeamViewset,basename='team')
 membership_router.register('',views. MembershipViewset,basename='member')
 profile_router.register('',views.ProfileViewset,basename='profile')
@@ -65,7 +63,6 @@ user_shift_router.register('',attendence_view.UserShiftViewSet,basename='shift-b
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("user/",include(user_router.urls)),
     path("team/",include(team_router.urls)),
     path("member/",include(membership_router.urls)),
     path("profile/",include(profile_router.urls)),

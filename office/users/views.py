@@ -1,36 +1,33 @@
-from django.shortcuts import render
+from django.contrib.auth import authenticate,logout
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import UpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authentication import BasicAuthentication,SessionAuthentication
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.viewsets import ModelViewSet
-from django.contrib.auth import authenticate,logout,login
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
+from rest_framework.validators import ValidationError
+
 from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience, Education,Address
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
     ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer, AdminListUserSerializer, \
-    ProfileEducationSerializer, AddressSerializer, TeamListSerializerWithoutMembers
+    ProfileEducationSerializer, AddressSerializer
+
 from utils.permissions import OnlyAdminUserCanMakePostRequest, TeamPermission, ProfilePermissions
-from rest_framework.validators import ValidationError
 from utils.paginations import DefaultPagePagination,MyPagination
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.authtoken.models import Token
-from inventory.models import Item,UserItemAssignment
-from inventory.serializers import ItemSerializer,AssignedItemSerializer
+
+
 
 
 class UserViewset(ModelViewSet):
     permission_classes = [IsAuthenticated,OnlyAdminUserCanMakePostRequest]
     http_method_names = ["get","post",'patch',"delete"]
-    queryset = User.objects.all()
-    pagination_class = DefaultPagePagination
+    pagination_class = LimitOffsetPagination
     filterset_fields = ['email','role']
-
-
 
 
     def get_serializer_class(self):
@@ -52,16 +49,14 @@ class UserViewset(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if self.request.user.role == 'admin':
-            return User.objects.exclude(email = self.request.user.email)
-        else:
-            return User.objects.filter(id=user.id)
+            return User.objects.all()
+        return User.objects.filter(id=user.id)
 
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         # convert queryset in paginated queryset
         page = self.paginate_queryset(queryset)
-
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             paginated_response = self.get_paginated_response(serializer.data)
@@ -72,12 +67,9 @@ class UserViewset(ModelViewSet):
                 paginated_response.data['user'] = UserSerializer(current_user).data
                 paginated_response.data['total_users'] = total_users
                 paginated_response.data['number_of_active_users'] = number_of_active_user
-
             return paginated_response
-
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
 
 
     def destroy(self, request, *args, **kwargs):
@@ -120,6 +112,29 @@ class GetUserEducation(APIView):
             serializer = ProfileEducationSerializer(education,many=True)
             return Response(serializer.data)
 
+class GetUserTeams(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self,request,user_id):
+            try:
+                user = User.objects.get(id = user_id)
+            except:
+                return Response({'message': "This Id has no user"})
+
+            if user.role == 'admin':
+                teams  = Team.objects.all()
+                user_teams = Team.objects.filter(members__user = user)
+                number_of_teams = user_teams.count()
+                serializer = TeamSerializer(teams,many=True)
+                user_team_serializer = TeamSerializer(user_teams,many=True)
+                return Response({'user_teams':user_team_serializer.data,'all_teams' : serializer.data,'number_of_user_teams' :number_of_teams })
+            else:
+                teams = Team.objects.filter(members__user = user)
+                number_of_teams = teams.count()
+                serializer = TeamSerializer(teams, many=True)
+                return Response({'user_teams': serializer.data, 'number_of_user_teams': number_of_teams})
+
+            return Response({'message': 'This user has no Team'})
 
 class UpdatePasswordAPI(UpdateAPIView):
     serializer_class = UpdatePasswordSerializer
@@ -303,8 +318,6 @@ class WorkingExperienceViewset(ModelViewSet):
             return []
 
 
-class GetWorkExperience(APIView):
-    pass
 
 class LoginAPI(APIView):
     permission_classes = [AllowAny]

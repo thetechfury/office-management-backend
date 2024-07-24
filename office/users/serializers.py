@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+
 from .models import User, Team, Membership, Profile, Education, ProfileImage, Skills, WorkingExperience,Address
 
 class AdminUserPostSerializer(serializers.ModelSerializer):
@@ -52,9 +53,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 
 class MembershipSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    def get_image(self,obj):
+        try:
+            return ProfileImage.objects.get(profile__user=obj.user).image.path
+        except:
+            return None
+
     class Meta:
         model = Membership
-        fields = "__all__"
+        fields = ['id','user','image']
 
     def create(self, validated_data):
         member = Membership.objects.create(**validated_data)
@@ -69,7 +78,7 @@ class TeamSerializer(serializers.ModelSerializer):
     members = MembershipSerializer(many=True, read_only=True)
     class Meta:
         model = Team
-        fields = ['id','name','leader','members']
+        fields = ['id','name','description','leader','members']
         extra_kwargs = {
             'id':{'read_only' : True}
         }
@@ -142,7 +151,7 @@ class UserSerializer(serializers.ModelSerializer):
             image = Profile.objects.get(user=obj).profile_image.image
             return image.path
         except:
-            return False
+            return None
 
     class Meta:
         model = User
