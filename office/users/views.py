@@ -10,6 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import ValidationError
+from rest_framework.decorators import action
 
 from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience, Education,Address
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
@@ -86,6 +87,18 @@ class GetUserProfile(APIView):
             return Response(serializer.data)
         except:
             return Response({'message':"This user has no Profile"})
+
+
+class GetUserSkills(APIView):
+    def get(self,request,user_id):
+        try:
+            profile = Profile.objects.get(user_id = user_id)
+            skills = Skills.objects.filter(profile = profile)
+            serializer = ProfileSkillSerializer(skills,many=True)
+            return Response(serializer.data)
+        except:
+            return Response({'message':"This user has no Skills in Database"})
+
 
 class GetUserAddress(APIView):
     def get(self,request,user_id):
@@ -175,6 +188,16 @@ class TeamViewset(ModelViewSet):
         queryset = Team.objects.filter(leader=request.user)
         serializer = TeamSerializer(queryset,many=True)
 
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def list_teams_by_leader(self, request, *args, **kwargs):
+        leader_id = request.query_params.get('leader_id')
+        if not leader_id:
+            return Response({"error": "Leader ID is required"}, status=400)
+
+        teams = self.queryset.filter(leader_id=leader_id)
+        serializer = self.get_serializer(teams, many=True)
         return Response(serializer.data)
 
 

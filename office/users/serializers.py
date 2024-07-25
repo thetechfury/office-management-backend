@@ -55,6 +55,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 class MembershipSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
 
+
     def get_image(self,obj):
         try:
             return ProfileImage.objects.get(profile__user=obj.user).image.path
@@ -64,6 +65,7 @@ class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         fields = ['id','user','image']
+
 
     def create(self, validated_data):
         member = Membership.objects.create(**validated_data)
