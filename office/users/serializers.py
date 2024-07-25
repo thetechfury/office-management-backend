@@ -95,8 +95,8 @@ class TeamSerializer(serializers.ModelSerializer):
 class ProfileSkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skills
-        fields = '__all__'
-        read_only_fields = ('id','profile',)
+        fields = ['id','name','level','description']
+        read_only_fields = ('id',)
         validators = [
             UniqueTogetherValidator(
                 queryset=Skills.objects.all(),
