@@ -131,21 +131,15 @@ class GetUserTeams(APIView):
     def get(self,request,user_id):
             try:
                 user = User.objects.get(id = user_id)
+                user_teams = Team.objects.filter(members__user=user)
+                number_of_teams = user_teams.count()
+                user_team_serializer = TeamSerializer(user_teams, many=True)
+                return Response({'user_teams': user_team_serializer.data, 'number_of_user_teams': number_of_teams})
             except:
                 return Response({'message': "This Id has no user"})
 
-            if user.role == 'admin':
-                teams  = Team.objects.all()
-                user_teams = Team.objects.filter(members__user = user)
-                number_of_teams = user_teams.count()
-                serializer = TeamSerializer(teams,many=True)
-                user_team_serializer = TeamSerializer(user_teams,many=True)
-                return Response({'user_teams':user_team_serializer.data,'all_teams' : serializer.data,'number_of_user_teams' :number_of_teams })
-            else:
-                teams = Team.objects.filter(members__user = user)
-                number_of_teams = teams.count()
-                serializer = TeamSerializer(teams, many=True)
-                return Response({'user_teams': serializer.data, 'number_of_user_teams': number_of_teams})
+
+
 
             return Response({'message': 'This user has no Team'})
 

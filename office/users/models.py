@@ -83,8 +83,7 @@ class Education(models.Model):
 class ProfileImage(models.Model):
     image = models.ImageField(upload_to='images/', blank=True, null=True)
     profile = models.OneToOneField(Profile,on_delete=models.CASCADE,related_name='profile_image')
-    def __str__(self):
-        return self.title
+
 
 
 class Skills(models.Model):
