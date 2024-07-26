@@ -7,19 +7,19 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import ValidationError
 from rest_framework.decorators import action
-
 from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience, Education,Address
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
     ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer, AdminListUserSerializer, \
     ProfileEducationSerializer, AddressSerializer
 
-from utils.permissions import OnlyAdminUserCanMakePostRequest, TeamPermission, ProfilePermissions
+from utils.permissions import OnlyAdminUserCanMakePostRequest, ProfilePermissions
 from utils.paginations import DefaultPagePagination,MyPagination
+
 
 
 
@@ -27,7 +27,7 @@ from utils.paginations import DefaultPagePagination,MyPagination
 class UserViewset(ModelViewSet):
     permission_classes = [IsAuthenticated,OnlyAdminUserCanMakePostRequest]
     http_method_names = ["get","post",'patch',"delete"]
-    pagination_class = LimitOffsetPagination
+    pagination_class = DefaultPagePagination
     filterset_fields = ['email','role']
 
 
@@ -176,7 +176,8 @@ class UpdatePasswordAPI(UpdateAPIView):
 class TeamViewset(ModelViewSet):
     queryset = Team.objects.all()
     serializer_class =TeamSerializer
-    permission_classes = [IsAuthenticated,TeamPermission]
+    authentication_classes = [TokenAuthentication,OnlyAdminUserCanMakePostRequest]
+    permission_classes = [IsAuthenticated]
     pagination_class = MyPagination
     http_method_names = ["get",'post','patch','delete']
 
@@ -220,7 +221,7 @@ class MembershipViewset(ModelViewSet):
         # if member is not team leader but part of teams
 
         else:
-            return ValidationError("This user is not belongs  of any team")
+            return []
 
 
 

@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
@@ -25,6 +26,7 @@ from users import views
 from inventory import views as inventory_views
 from attendence import views as attendence_view
 from .swagger import swagger_info
+
 # swagger
 schema_view = get_schema_view(
     swagger_info,
@@ -33,6 +35,7 @@ schema_view = get_schema_view(
 )
 
 # routers
+
 team_router = DefaultRouter()
 membership_router = DefaultRouter()
 profile_router = DefaultRouter()

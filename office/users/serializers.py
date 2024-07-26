@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.validators import UniqueTogetherValidator,ValidationError
 
 from .models import User, Team, Membership, Profile, Education, ProfileImage, Skills, WorkingExperience,Address
 
@@ -64,12 +64,20 @@ class MembershipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Membership
-        fields = ['id','user','image']
+        fields = ['id','user','image','team']
+
+
 
 
     def create(self, validated_data):
         member = Membership.objects.create(**validated_data)
         return member
+
+    def validate(self, data):
+        if data['team'].leader ==self.context['request'].user:
+            return data
+        raise ValidationError("Only Team leader can add user in team")
+
 
 class TeamListSerializerWithoutMembers(serializers.ModelSerializer):
     class Meta:
@@ -84,6 +92,12 @@ class TeamSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'id':{'read_only' : True}
         }
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Team.objects.all(),
+                fields=['name','leader']
+            )
+        ]
 
     def create(self, validated_data):
         team = Team.objects.create(**validated_data)
@@ -95,8 +109,8 @@ class TeamSerializer(serializers.ModelSerializer):
 class ProfileSkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skills
-        fields = ['id','name','level','description']
-        read_only_fields = ('id',)
+        fields = '__all__'
+        read_only_fields = ('id','profile',)
         validators = [
             UniqueTogetherValidator(
                 queryset=Skills.objects.all(),
