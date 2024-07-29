@@ -403,6 +403,12 @@ class AdminListUserSerializer(serializers.ModelSerializer):
         return representation
 
 
+class UserForForeignKeySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id','email','role']
+
+
 
 
 class UpdatePasswordSerializer(serializers.Serializer):

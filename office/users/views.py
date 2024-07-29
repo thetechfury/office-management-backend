@@ -15,10 +15,11 @@ from .models import User, Team, Membership, Profile, ProfileImage, Skills, Worki
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
     ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer, AdminListUserSerializer, \
-    ProfileEducationSerializer, AddressSerializer
+    ProfileEducationSerializer, AddressSerializer, UserForForeignKeySerializer
 
-from utils.permissions import OnlyAdminUserCanMakePostRequest, ProfilePermissions
+from utils.permissions import OnlyAdminUserCanMakePostRequest, ProfilePermissions,OnlyAdminUserCanGet
 from utils.paginations import DefaultPagePagination,MyPagination
+
 
 
 
@@ -77,6 +78,17 @@ class UserViewset(ModelViewSet):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({'status': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+class GetuserForAsForeignKey(APIView):
+    permission_classes = [OnlyAdminUserCanGet]
+    def get(self,request,*args):
+            users = User.objects.all()
+            serializer = UserForForeignKeySerializer(users,many=True)
+            return Response(serializer.data)
+
+
 
 
 class GetUserProfile(APIView):
