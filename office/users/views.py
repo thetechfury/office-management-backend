@@ -86,7 +86,7 @@ class GetuserForAsForeignKey(APIView):
 
     def get(self,request,*args):
             users = User.objects.all()
-            serializer = TeamForForeignKeySerializer(users,many=True)
+            serializer = UserForForeignKeySerializer(users,many=True)
             return Response(serializer.data)
 
 
