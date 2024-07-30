@@ -408,6 +408,10 @@ class UserForForeignKeySerializer(serializers.ModelSerializer):
         model = User
         fields = ['id','email','role']
 
+class TeamForForeignKeySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ['id','name']
 
 
 

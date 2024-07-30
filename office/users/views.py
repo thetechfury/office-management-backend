@@ -15,7 +15,7 @@ from .models import User, Team, Membership, Profile, ProfileImage, Skills, Worki
 from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
     AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
     ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer, AdminListUserSerializer, \
-    ProfileEducationSerializer, AddressSerializer, UserForForeignKeySerializer
+    ProfileEducationSerializer, AddressSerializer, UserForForeignKeySerializer, TeamForForeignKeySerializer
 
 from utils.permissions import OnlyAdminUserCanMakePostRequest, ProfilePermissions,OnlyAdminUserCanGet
 from utils.paginations import DefaultPagePagination,MyPagination
@@ -82,14 +82,25 @@ class UserViewset(ModelViewSet):
 
 
 class GetuserForAsForeignKey(APIView):
-    permission_classes = [OnlyAdminUserCanGet]
+    permission_classes = [IsAuthenticated]
+
     def get(self,request,*args):
             users = User.objects.all()
-            serializer = UserForForeignKeySerializer(users,many=True)
+            serializer = TeamForForeignKeySerializer(users,many=True)
             return Response(serializer.data)
 
 
-
+class GetTeamAsForeignKey(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request,*args):
+            if request.user.role != "admin":
+                teams = Team.objects.filter(leader = request.user)
+                serializer = TeamForForeignKeySerializer(teams,many=True)
+                return Response(serializer.data)
+            else:
+                teams = Team.objects.all()
+                serializer = TeamForForeignKeySerializer(teams,many=True)
+                return Response(serializer.data)
 
 class GetUserProfile(APIView):
     def get(self,request,user_id):
