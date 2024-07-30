@@ -199,14 +199,14 @@ class TeamViewset(ModelViewSet):
     http_method_names = ["get",'post','patch','delete']
 
     def list(self, request, *args, **kwargs):
-        if request.user.role == "admin":
-            queryset = Team.objects.all()
-        else:
+        if request.user.role != "admin":
             queryset = Team.objects.filter(leader=request.user)
-        queryset = Team.objects.filter(leader=request.user)
-        serializer = TeamSerializer(queryset,many=True)
-
-        return Response(serializer.data)
+            serializer = TeamSerializer(queryset,many=True)
+            return Response(serializer.data)
+        else:
+            queryset = Team.objects.all()
+            serializer = TeamSerializer(queryset, many=True)
+            return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
     def list_teams_by_leader(self, request, *args, **kwargs):

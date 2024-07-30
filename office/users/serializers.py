@@ -58,7 +58,7 @@ class MembershipSerializer(serializers.ModelSerializer):
 
     def get_image(self,obj):
         try:
-            return ProfileImage.objects.get(profile__user=obj.user).image.path
+            return ProfileImage.objects.get(profile__user=obj.user).image.url
         except:
             return None
 
@@ -165,7 +165,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_image(self, obj):
         try:
             image = Profile.objects.get(user=obj).profile_image.image
-            return image.path
+            return image.url
         except:
             return None
 
