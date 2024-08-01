@@ -11,19 +11,18 @@ from rest_framework.authentication import TokenAuthentication, BasicAuthenticati
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import ValidationError
 from rest_framework.decorators import action
+
 from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience, Education,Address
-from .serializers import UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer, \
-    AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer, ProfileImageSerializer, \
-    ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer, AdminListUserSerializer, \
-    ProfileEducationSerializer, AddressSerializer, UserForForeignKeySerializer, TeamForForeignKeySerializer
+from .serializers import (
+    UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer,
+    AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer,
+    ProfileImageSerializer, ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer,
+    AdminListUserSerializer, ProfileEducationSerializer, AddressSerializer,
+    UserForForeignKeySerializer, TeamForForeignKeySerializer
+)
 
-from utils.permissions import OnlyAdminUserCanMakePostRequest, ProfilePermissions,OnlyAdminUserCanGet
+from utils.permissions import OnlyAdminUserCanMakePostRequest, ProfilePermissions
 from utils.paginations import DefaultPagePagination,MyPagination
-
-
-
-
-
 
 class UserViewset(ModelViewSet):
     permission_classes = [IsAuthenticated,OnlyAdminUserCanMakePostRequest]
@@ -31,7 +30,7 @@ class UserViewset(ModelViewSet):
     pagination_class = DefaultPagePagination
     filterset_fields = ['email','role']
 
-
+    # need to modify if end user make post request
     def get_serializer_class(self):
         role = self.request.user.role
         action = self.action
@@ -49,6 +48,9 @@ class UserViewset(ModelViewSet):
 
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            # queryset just for schema generation metadata
+            return User.objects.none()
         user = self.request.user
         if self.request.user.role == 'admin':
             return User.objects.all()
@@ -81,7 +83,7 @@ class UserViewset(ModelViewSet):
 
 
 
-class GetuserForAsForeignKey(APIView):
+class GetuserForForeignKey(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self,request,*args):
@@ -148,6 +150,7 @@ class GetUserEducation(APIView):
             serializer = ProfileEducationSerializer(education,many=True)
             return Response(serializer.data)
 
+# Can be modified
 class GetUserTeams(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -161,11 +164,10 @@ class GetUserTeams(APIView):
             except:
                 return Response({'message': "This Id has no user"})
 
-
-
-
             return Response({'message': 'This user has no Team'})
 
+
+# This should be patch because if we put avail more payload  than patch and also put try to save instance if does't found
 class UpdatePasswordAPI(UpdateAPIView):
     serializer_class = UpdatePasswordSerializer
     permission_classes = [IsAuthenticated]
@@ -227,6 +229,10 @@ class MembershipViewset(ModelViewSet):
     http_method_names = ["get",'post','delete']
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            # queryset just for schema generation metadata
+            return User.objects.none()
+
         # admin user can access all members of all teams
         if self.request.user.role == 'admin':
             return Membership.objects.all()
@@ -249,10 +255,10 @@ class ProfileViewset(ModelViewSet):
     http_method_names = ["get",'post','delete','patch']
     pagination_class = DefaultPagePagination
 
-
-
-
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            # queryset just for schema generation metadata
+            return User.objects.none()
         user = self.request.user
         if user.role == "admin":
             return Profile.objects.all().exclude(user = user)
@@ -285,6 +291,9 @@ class ProfileImageViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            # queryset just for schema generation metadata
+            return User.objects.none()
         try:
             profile = Profile.objects.get(user=self.request.user)
             profile_image = ProfileImage.objects.filter(profile=profile)
@@ -336,6 +345,9 @@ class ProfileSkillViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","patch")
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            # queryset just for schema generation metadata
+            return User.objects.none()
         user = self.request.user
         try:
             profile = Profile.objects.get(user=self.request.user)
@@ -350,6 +362,9 @@ class WorkingExperienceViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","patch","delete")
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            # queryset just for schema generation metadata
+            return User.objects.none()
         user = self.request.user
         try:
             profile = Profile.objects.get(user=self.request.user)

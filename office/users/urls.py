@@ -10,7 +10,7 @@ urlpatterns = [
     path("user/update-password/",views.UpdatePasswordAPI.as_view()),
     path("auth/login/",views.LoginAPI.as_view()),
     path("auth/logout/",views.LogoutAPI.as_view()),
-    path('user/select-users-list/', views.GetuserForAsForeignKey.as_view()),
+    path('user/select-users-list/', views.GetuserForForeignKey.as_view()),
     path('user/select-teams-list/', views.GetTeamAsForeignKey.as_view()),
     path('user/<user_id>/profile/',views.GetUserProfile.as_view()),
     path('user/<user_id>/address/',views.GetUserAddress.as_view()),
@@ -19,5 +19,4 @@ urlpatterns = [
     path('user/<user_id>/skills/',views.GetUserSkills.as_view()),
     path('user/<user_id>/teams/',views.GetUserTeams.as_view()),
     path("user/",include(user_router.urls)),
-
 ]
