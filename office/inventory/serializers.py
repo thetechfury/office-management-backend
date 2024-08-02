@@ -118,10 +118,10 @@ class ItemPartialUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = "__all__"
-        extra_kwargs = {
-            'id': {'read_only': True},
-            'remaining_quantity': {'read_only': True},
-        }
+        # extra_kwargs = {
+        #     'id': {'read_only': True},
+        #     'remaining_quantity': {'read_only': True},
+        # }
 
     def update(self, instance, validated_data):
         additional_quantity = validated_data.get('additional_quantity', 0)

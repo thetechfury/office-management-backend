@@ -13,6 +13,9 @@ class LeaveApplicationViewset(viewsets.ModelViewSet):
     http_method_names = ("get", "post", "patch", "delete")
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            # queryset just for schema generation metadata
+            return LeaveApplication.objects.none()
         if self.request.user.role != "admin":
             return LeaveApplication.objects.filter(user = self.request.user)
 
@@ -27,6 +30,9 @@ class UserLeavesViewset(viewsets.ModelViewSet):
     http_method_names = ("get", "post", "patch", "delete")
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            # queryset just for schema generation metadata
+            return LeaveApplication.objects.none()
         if self.request.user.role != "admin":
             return UserLeaves.objects.filter(user = self.request.user)
         return UserLeaves.objects.all()

@@ -48,9 +48,9 @@ class UserViewset(ModelViewSet):
 
 
     def get_queryset(self):
-        if getattr(self, "swagger_fake_view", False):
-            # queryset just for schema generation metadata
-            return User.objects.none()
+        # if getattr(self, "swagger_fake_view", False):
+        #     # queryset just for schema generation metadata
+        #     return User.objects.none()
         user = self.request.user
         if self.request.user.role == 'admin':
             return User.objects.all()
@@ -229,9 +229,6 @@ class MembershipViewset(ModelViewSet):
     http_method_names = ["get",'post','delete']
 
     def get_queryset(self):
-        if getattr(self, "swagger_fake_view", False):
-            # queryset just for schema generation metadata
-            return User.objects.none()
 
         # admin user can access all members of all teams
         if self.request.user.role == 'admin':
@@ -256,9 +253,6 @@ class ProfileViewset(ModelViewSet):
     pagination_class = DefaultPagePagination
 
     def get_queryset(self):
-        if getattr(self, "swagger_fake_view", False):
-            # queryset just for schema generation metadata
-            return User.objects.none()
         user = self.request.user
         if user.role == "admin":
             return Profile.objects.all().exclude(user = user)
@@ -291,9 +285,6 @@ class ProfileImageViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
-        if getattr(self, "swagger_fake_view", False):
-            # queryset just for schema generation metadata
-            return User.objects.none()
         try:
             profile = Profile.objects.get(user=self.request.user)
             profile_image = ProfileImage.objects.filter(profile=profile)
@@ -307,10 +298,6 @@ class ProfileEducationViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
-        if getattr(self, 'swagger_fake_view', False):
-            # Return an empty queryset or a queryset with dummy data to avoid issues during schema generation
-            return Profile.objects.none()
-
         user = self.request.user
         if user.role == "admin":
             profile_education = Education.objects.all()
@@ -327,10 +314,6 @@ class ProfileAddressViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","put")
     def get_queryset(self):
-        if getattr(self, 'swagger_fake_view', False):
-            # Return an empty queryset or a queryset with dummy data to avoid issues during schema generation
-            return Address.objects.none()
-
         user = self.request.user
         if user.role == "admin":
             profile_address = Address.objects.all()
@@ -345,9 +328,6 @@ class ProfileSkillViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","patch")
     def get_queryset(self):
-        if getattr(self, "swagger_fake_view", False):
-            # queryset just for schema generation metadata
-            return User.objects.none()
         user = self.request.user
         try:
             profile = Profile.objects.get(user=self.request.user)
@@ -362,9 +342,6 @@ class WorkingExperienceViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","patch","delete")
     def get_queryset(self):
-        if getattr(self, "swagger_fake_view", False):
-            # queryset just for schema generation metadata
-            return User.objects.none()
         user = self.request.user
         try:
             profile = Profile.objects.get(user=self.request.user)

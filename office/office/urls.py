@@ -81,7 +81,7 @@ urlpatterns = [
     path("user-shift/",include(user_shift_router.urls)),
     path("",include('users.urls')),
     path("attendence/",include('attendence.urls')),
-    path("leave/",include('leave_management.urls')),
+    # path("leave/",include('leave_management.urls')),
     path("inventory/",include('inventory.urls')),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

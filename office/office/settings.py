@@ -147,10 +147,20 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'users.User'
 
 
+# SWAGGER_SETTINGS = {
+#     'DEFAULT_INFO': 'office.swagger.swagger_info',
+# }
 SWAGGER_SETTINGS = {
-    'DEFAULT_INFO': 'office.swagger.swagger_info',
+'USE_SESSION_AUTH': False,
+   'SECURITY_DEFINITIONS': {
+      'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            "bearerFormat": "Token",
+      }
+   }
 }
-
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_AUTHENTICATION_CLASSES': [
