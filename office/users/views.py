@@ -21,7 +21,7 @@ from .serializers import (
     UserForForeignKeySerializer, TeamForForeignKeySerializer
 )
 
-from utils.permissions import OnlyAdminUserCanMakePostRequest, ProfilePermissions
+from utils.permissions import OnlyAdminUserCanMakePostRequest, ProfilePermissions,OnlyAdminUser
 from utils.paginations import DefaultPagePagination,MyPagination
 
 class UserViewset(ModelViewSet):
@@ -90,6 +90,20 @@ class GetuserForForeignKey(APIView):
             users = User.objects.all()
             serializer = UserForForeignKeySerializer(users,many=True)
             return Response(serializer.data)
+
+class GetuserToChangeTeamLeader(APIView):
+    permission_classes = [IsAuthenticated,OnlyAdminUser]
+
+    def get(self,request,team_id,*args):
+        try:
+            team = Team.objects.get(id = team_id)
+            members = team.members.exclude(user=team.leader)
+            users = User.objects.filter(membership__in=members)
+            serializer = UserForForeignKeySerializer(users,many=True)
+            return Response(serializer.data)
+        except:
+            raise ValidationError("This id has no team")
+
 
 
 class GetTeamAsForeignKey(APIView):
@@ -219,6 +233,7 @@ class TeamViewset(ModelViewSet):
         teams = self.queryset.filter(leader_id=leader_id)
         serializer = self.get_serializer(teams, many=True)
         return Response(serializer.data)
+
 
 
 

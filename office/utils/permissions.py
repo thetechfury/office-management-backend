@@ -15,6 +15,12 @@ class OnlyAdminUserCanGet(BasePermission):
             return request.user.role == "admin"
         return False
 
+
+class OnlyAdminUser(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.role == "admin"
+
+
 class OnlyAdminUserAndInventoryManagerCanMakePostRequest(BasePermission):
     # Only for POST  Request permitted user is admin
     def has_permission(self, request, view):
