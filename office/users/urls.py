@@ -19,5 +19,5 @@ urlpatterns = [
     path('user/<user_id>/skills/',views.GetUserSkills.as_view()),
     path('user/<user_id>/teams/',views.GetUserTeams.as_view()),
     path("user/",include(user_router.urls)),
-    path("team/<team_id>/users-list",views.GetuserToChangeTeamLeader.as_view()),
+    path("team/<team_id>/users-list/",views.GetuserToChangeTeamLeader.as_view()),
 ]
