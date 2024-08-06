@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from users.models import Team
+from users.models import Team,User
 from django.db.models import Q
 
 class Command(BaseCommand):
