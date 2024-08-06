@@ -11,34 +11,37 @@ from rest_framework.authentication import TokenAuthentication, BasicAuthenticati
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import ValidationError
 from rest_framework.decorators import action
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 from .models import User, Team, Membership, Profile, ProfileImage, Skills, WorkingExperience, Education,Address
 from .serializers import (
     UserSerializer, UpdatePasswordSerializer, TeamSerializer, AdminUserUpdateSerializer,
-    AdminUserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer,
+    UserPostSerializer, UserUpdateSerializer, MembershipSerializer, ProfileSerializer,
     ProfileImageSerializer, ProfileSkillSerializer, LoginSerializer, WorkingExperienceSerializer,
     AdminListUserSerializer, ProfileEducationSerializer, AddressSerializer,
-    UserForForeignKeySerializer, TeamForForeignKeySerializer
+    UserForForeignKeySerializer, TeamForForeignKeySerializer,LoginSerializer
 )
 
-from utils.permissions import OnlyAdminUserCanMakePostRequest, ProfilePermissions,OnlyAdminUser
+from utils.permissions import OnlyAdminUserCanMakePostRequest, ProfilePermissions,OnlyAdminUser,OnlyAdminUserCanPostAndDelete
 from utils.paginations import DefaultPagePagination,MyPagination
 
 class UserViewset(ModelViewSet):
-    permission_classes = [IsAuthenticated,OnlyAdminUserCanMakePostRequest]
+    permission_classes = [IsAuthenticated,OnlyAdminUserCanPostAndDelete]
     http_method_names = ["get","post",'patch',"delete"]
     pagination_class = DefaultPagePagination
     filterset_fields = ['email','role']
 
     # need to modify if end user make post request
     def get_serializer_class(self):
+
         role = self.request.user.role
         action = self.action
         if role == "admin":
             if action == 'list':
                 return AdminListUserSerializer
             elif action == 'create':
-                return AdminUserPostSerializer
+                return UserPostSerializer
             elif action in ['update', 'partial_update']:
                 return AdminUserUpdateSerializer
         elif action in ['update', 'partial_update']:
@@ -48,9 +51,6 @@ class UserViewset(ModelViewSet):
 
 
     def get_queryset(self):
-        # if getattr(self, "swagger_fake_view", False):
-        #     # queryset just for schema generation metadata
-        #     return User.objects.none()
         user = self.request.user
         if self.request.user.role == 'admin':
             return User.objects.all()
@@ -371,7 +371,9 @@ class LoginAPI(APIView):
     permission_classes = [AllowAny]
     authentication_classes = [TokenAuthentication]
     http_method_names = ["post"]
+    serializer_class = LoginSerializer
 
+    @swagger_auto_schema(operation_description="To Login ",request_body=LoginSerializer)
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
