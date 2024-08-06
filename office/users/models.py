@@ -12,6 +12,10 @@ class User(AbstractUser):
     Accountant = 'accountant'
     Inventory_Manager = 'inventory_manager'
 
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
+    LONG_BREAK = 'long_break'
+
 
     """User model."""
     ROLE_CHOICES = (
@@ -21,7 +25,16 @@ class User(AbstractUser):
         (Inventory_Manager,'Inventory Manager'),
         (ADMIN,"Admin")
     )
+
+    STATUS_CHOICES = (
+        (ACTIVE, "Active"),
+        (INACTIVE, "Inactive"),
+        (LONG_BREAK, "long_break"),
+    )
+
     role = models.CharField(max_length=30,choices=ROLE_CHOICES,default=ROLE_CHOICES[0])
+    status = models.CharField(max_length=20,choices=STATUS_CHOICES,default=STATUS_CHOICES[0])
+
     username = None
     email = models.EmailField(_('email address'), unique=True)
 
@@ -44,7 +57,7 @@ class Team(models.Model):
 
 
 class Membership(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='users')
     team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='members')
 
     class Meta:
