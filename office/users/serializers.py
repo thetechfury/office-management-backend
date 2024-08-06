@@ -3,7 +3,8 @@ from rest_framework.validators import UniqueTogetherValidator,ValidationError
 
 from .models import User, Team, Membership, Profile, Education, ProfileImage, Skills, WorkingExperience,Address
 
-class AdminUserPostSerializer(serializers.ModelSerializer):
+
+class UserPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ( 'email','role','first_name','last_name','password')
@@ -22,38 +23,76 @@ class AdminUserPostSerializer(serializers.ModelSerializer):
 class AdminUserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = [ 'role', 'first_name', 'last_name']
-        extra_kwargs = {
-            'is_superuser': {'read_only': True},
-            'is_staff': {'read_only': True},
-            'role': {'read_only': False}
-        }
+        fields = "__all__"
 
     def update(self, instance, validated_data):
-        user = super().update(instance, validated_data)
-        user.save()
-        return user
-
-class UserUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = [  'first_name', 'last_name']
-        extra_kwargs = {
-            'is_superuser': {'read_only': True},
-            'is_staff': {'read_only': True},
-        }
-
-    def update(self, instance, validated_data):
-        instance.bio = validated_data.get('email', instance.email)
-        instance.content = validated_data.get('content', instance.content)
-        instance.created = validated_data.get('created', instance.created)
+        password = validated_data.pop('password', None)
+        for (key, value) in validated_data.items():
+            setattr(instance, key, value)
+        if password is not None:
+            instance.set_password(password)
         instance.save()
         return instance
 
 
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [ 'first_name', 'last_name','password']
+        extra_kwargs = {
+            'is_superuser': {'read_only': True},
+            'is_staff': {'read_only': True},
+        }
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for (key, value) in validated_data.items():
+            setattr(instance, key, value)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance
+
+
+class UserSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    def get_image(self, obj):
+        try:
+            image = Profile.objects.get(user=obj).profile_image.image
+            return image.url
+        except:
+            return None
+
+    class Meta:
+        model = User
+        fields = ['id', 'email','role','full_name','date_joined','image','status']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_superuser': {'read_only': True},
+            'is_staff': {'read_only': True},
+            'role': {'read_only': True},
+            'status': {'read_only': True}
+        }
+
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['date_joined'] = instance.date_joined.strftime('%d %b %Y')
+        return representation
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+    def update(self, instance, validated_data):
+        user = super().update(instance, validated_data)
+        user.save()
+        return user
+
+
 class MembershipSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
+    user = UserSerializer()
 
 
     def get_image(self,obj):
@@ -158,39 +197,6 @@ class UserSerializerForProfile(serializers.ModelSerializer):
 
 
 
-
-class UserSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
-    def get_image(self, obj):
-        try:
-            image = Profile.objects.get(user=obj).profile_image.image
-            return image.url
-        except:
-            return None
-
-    class Meta:
-        model = User
-        fields = ['id', 'email','role','full_name','date_joined','image']
-        extra_kwargs = {
-            'password': {'write_only': True},
-            'is_superuser': {'read_only': True},
-            'is_staff': {'read_only': True},
-            'role': {'read_only': True}
-        }
-
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['date_joined'] = instance.date_joined.strftime('%d %b %Y')
-        return representation
-
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
-    def update(self, instance, validated_data):
-        user = super().update(instance, validated_data)
-        user.save()
-        return user
 
 
 class EductionSerializer(serializers.ModelSerializer):
@@ -394,7 +400,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class AdminListUserSerializer(serializers.ModelSerializer):
      class Meta:
         model = User
-        fields = ['full_name','email','role','date_joined','is_active','id']
+        fields = ['full_name','email','role','date_joined','is_active','status','id']
 
      def to_representation(self, instance):
         representation = super().to_representation(instance)
