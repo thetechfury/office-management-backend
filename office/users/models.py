@@ -57,7 +57,7 @@ class Team(models.Model):
 
 
 class Membership(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='users')
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
     team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='members')
 
     class Meta:

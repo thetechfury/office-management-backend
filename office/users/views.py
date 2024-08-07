@@ -31,10 +31,13 @@ class UserViewset(ModelViewSet):
     http_method_names = ["get","post",'patch',"delete"]
     pagination_class = DefaultPagePagination
     filterset_fields = ['email','role']
+    serializer_class = UserSerializer
 
     # need to modify if end user make post request
     def get_serializer_class(self):
-
+        if getattr(self, "swagger_fake_view", False):
+            # queryset just for schema generation metadata
+            return UserSerializer
         role = self.request.user.role
         action = self.action
         if role == "admin":
@@ -57,6 +60,10 @@ class UserViewset(ModelViewSet):
         return User.objects.filter(id=user.id)
 
 
+    @swagger_auto_schema(
+        operation_id='API to get Users based on thier roles',
+        operation_summary="View User detail",
+    )
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         # convert queryset in paginated queryset
@@ -75,7 +82,29 @@ class UserViewset(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        operation_id='API to create user',
+        operation_summary="Only Admin User can create a user",
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request,*args,**kwargs)
 
+
+    @swagger_auto_schema(
+        operation_id='API to get single user based on id',
+        operation_summary="Single user data",
+
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request,*args,**kwargs)
+
+
+
+    @swagger_auto_schema(
+        operation_id='Only Admin User can delete User',
+        operation_summary="Remove User",
+        operation_description='Display inside',
+    )
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -244,7 +273,6 @@ class MembershipViewset(ModelViewSet):
     http_method_names = ["get",'post','delete']
 
     def get_queryset(self):
-
         # admin user can access all members of all teams
         if self.request.user.role == 'admin':
             return Membership.objects.all()
@@ -343,7 +371,6 @@ class ProfileSkillViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     http_method_names = ("get","post","patch")
     def get_queryset(self):
-        user = self.request.user
         try:
             profile = Profile.objects.get(user=self.request.user)
             profile_skills = Skills.objects.filter(profile=profile)
