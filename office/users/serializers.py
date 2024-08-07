@@ -92,9 +92,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 class MembershipSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
-    user = UserSerializer()
-
-
     def get_image(self,obj):
         try:
             return ProfileImage.objects.get(profile__user=obj.user).image.url
@@ -149,11 +146,11 @@ class ProfileSkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skills
         fields = '__all__'
-        read_only_fields = ('id','profile',)
+        read_only_fields = ('id','profile')
         validators = [
             UniqueTogetherValidator(
                 queryset=Skills.objects.all(),
-                fields=['name']
+                fields=['name',]
             )
         ]
 
