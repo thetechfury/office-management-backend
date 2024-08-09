@@ -110,7 +110,7 @@ class MembershipSerializer(serializers.ModelSerializer):
         return member
 
     def validate(self, data):
-        if data['team'].leader == self.context['request'].user or self.context['request'].role == "admin":
+        if data['team'].leader == self.context['request'].user or self.context['request'].user.role == "admin":
             return data
         raise ValidationError("Only Team leader and Admin  can add user in team")
 
